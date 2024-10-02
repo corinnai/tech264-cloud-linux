@@ -1,5 +1,4 @@
 # Learning Cloud Computing - AZURE
-
 - [Learning Cloud Computing - AZURE](#learning-cloud-computing---azure)
   - [Learning Cloud Computing - AZURE](#learning-cloud-computing---azure-1)
     - [Cloud Architecture](#cloud-architecture)
@@ -25,38 +24,39 @@
       - [Subnets:](#subnets)
     - [Plan to create a VM](#plan-to-create-a-vm)
       - [How to Create a Virtual Machine (VM)](#how-to-create-a-virtual-machine-vm)
-    - [--\> Basic](#---basic)
-  - [--\> Disks](#---disks)
-  - [--\> Networking](#---networking)
-  - [--\> Tags](#---tags)
-  - [--\> Review and Create](#---review-and-create)
+        - [--\> Basic](#---basic)
+        - [--\> Disks](#---disks)
+        - [--\> Networking](#---networking)
+        - [--\> Tags](#---tags)
+        - [--\> Review and Create](#---review-and-create)
     - [Connecting Your Virtual Machine](#connecting-your-virtual-machine)
     - [How to see your SSH key in Git Bash :](#how-to-see-your-ssh-key-in-git-bash-)
 - [Linux](#linux)
 - [Linux commands](#linux-commands)
 - [Linux - research managing file ownership with LInux](#linux---research-managing-file-ownership-with-linux)
     - [**Why is managing file ownership important?**](#why-is-managing-file-ownership-important)
-    - [**What is the command to view file ownership?**](#what-is-the-command-to-view-file-ownership)
-    - [**What permissions are set when a user creates a file or directory? Who does file or directory belong to?**](#what-permissions-are-set-when-a-user-creates-a-file-or-directory-who-does-file-or-directory-belong-to)
-    - [**Why does the owner, by default, not recieve X permissions when they create a file?**](#why-does-the-owner-by-default-not-recieve-x-permissions-when-they-create-a-file)
-    - [**What command is used to change the owner of a file or directory?**](#what-command-is-used-to-change-the-owner-of-a-file-or-directory)
+    - [What is the command to view file ownership?](#what-is-the-command-to-view-file-ownership)
+    - [What permissions are set when a user creates a file or directory? Who does file or directory belong to?](#what-permissions-are-set-when-a-user-creates-a-file-or-directory-who-does-file-or-directory-belong-to)
+    - [Why does the owner, by default, not recieve X permissions when they create a file?](#why-does-the-owner-by-default-not-recieve-x-permissions-when-they-create-a-file)
+    - [What command is used to change the owner of a file or directory?](#what-command-is-used-to-change-the-owner-of-a-file-or-directory)
 - [Linux - Linux - Research managing file permissions](#linux---linux---research-managing-file-permissions)
-    - [**Does being the owner of a file mean you have full permissions on that file? Explain.**](#does-being-the-owner-of-a-file-mean-you-have-full-permissions-on-that-file-explain)
-    - [**If you give permissions to the User entity, what does this mean?**](#if-you-give-permissions-to-the-user-entity-what-does-this-mean)
-    - [**If you give permissions to the Group entity, what does this mean?**](#if-you-give-permissions-to-the-group-entity-what-does-this-mean)
-    - [**If you give permissions to the Other entity, what does this mean?**](#if-you-give-permissions-to-the-other-entity-what-does-this-mean)
-    - [**You give the following permissions to a file: User permissions are read-only, Group permissions are read and write, Other permissions are read, write and execute. You are logged in as the user which is owner of the file. What permissions will you have on this file? Explain.**](#you-give-the-following-permissions-to-a-file-user-permissions-are-read-only-group-permissions-are-read-and-write-other-permissions-are-read-write-and-execute-you-are-logged-in-as-the-user-which-is-owner-of-the-file-what-permissions-will-you-have-on-this-file-explain)
-    - [**Here is one line from the ls -l. Work everything you can about permissions on this file or directory.**](#here-is-one-line-from-the-ls--l-work-everything-you-can-about-permissions-on-this-file-or-directory)
+    - [Does being the owner of a file mean you have full permissions on that file? Explain.](#does-being-the-owner-of-a-file-mean-you-have-full-permissions-on-that-file-explain)
+    - [If you give permissions to the User entity, what does this mean?](#if-you-give-permissions-to-the-user-entity-what-does-this-mean)
+    - [If you give permissions to the Group entity, what does this mean?](#if-you-give-permissions-to-the-group-entity-what-does-this-mean)
+    - [If you give permissions to the Other entity, what does this mean?](#if-you-give-permissions-to-the-other-entity-what-does-this-mean)
+    - [You give the following permissions to a file: User permissions are read-only, Group permissions are read and write, Other permissions are read, write and execute. You are logged in as the user which is owner of the file. What permissions will you have on this file? Explain.](#you-give-the-following-permissions-to-a-file-user-permissions-are-read-only-group-permissions-are-read-and-write-other-permissions-are-read-write-and-execute-you-are-logged-in-as-the-user-which-is-owner-of-the-file-what-permissions-will-you-have-on-this-file-explain)
+    - [Here is one line from the ls -l. Work everything you can about permissions on this file or directory.](#here-is-one-line-from-the-ls--l-work-everything-you-can-about-permissions-on-this-file-or-directory)
 - [Linux - Research managing file permissions using numeric values](#linux---research-managing-file-permissions-using-numeric-values)
-    - [**What numeric values are assigned to each permission?**](#what-numeric-values-are-assigned-to-each-permission)
-    - [**What can you with the values assign read + write permissions?**](#what-can-you-with-the-values-assign-read--write-permissions)
-    - [**What value would assign read, write and execute permissions?**](#what-value-would-assign-read-write-and-execute-permissions)
-    - [**What value would assign read and execute permissions?**](#what-value-would-assign-read-and-execute-permissions)
-    - [**Often, a file or directory's mode/permissions are represented by 3 numbers. What do you think 644 would mean?**](#often-a-file-or-directorys-modepermissions-are-represented-by-3-numbers-what-do-you-think-644-would-mean)
+    - [What numeric values are assigned to each permission?](#what-numeric-values-are-assigned-to-each-permission)
+    - [What can you with the values assign read + write permissions?](#what-can-you-with-the-values-assign-read--write-permissions)
+    - [What value would assign read, write and execute permissions?](#what-value-would-assign-read-write-and-execute-permissions)
+    - [What value would assign read and execute permissions?](#what-value-would-assign-read-and-execute-permissions)
+    - [Often, a file or directory's mode/permissions are represented by 3 numbers. What do you think 644 would mean?](#often-a-file-or-directorys-modepermissions-are-represented-by-3-numbers-what-do-you-think-644-would-mean)
 - [Linux - Research changing file permissions](#linux---research-changing-file-permissions)
-    - [**What command changes file permissions?**](#what-command-changes-file-permissions)
-    - [**To change permissions on a file what must the end user be? (2 answers)**](#to-change-permissions-on-a-file-what-must-the-end-user-be-2-answers)
-    - [**Give examples of some different ways/syntaxes to set permissions on a new file (named `testfile.txt`) to:**](#give-examples-of-some-different-wayssyntaxes-to-set-permissions-on-a-new-file-named-testfiletxt-to)
+    - [What command changes file permissions?](#what-command-changes-file-permissions)
+    - [To change permissions on a file what must the end user be? (2 answers)](#to-change-permissions-on-a-file-what-must-the-end-user-be-2-answers)
+    - [Give examples of some different ways/syntaxes to set permissions on a new file (named `testfile.txt`) to:](#give-examples-of-some-different-wayssyntaxes-to-set-permissions-on-a-new-file-named-testfiletxt-to)
+
 
 
 ## Learning Cloud Computing - AZURE
@@ -100,8 +100,8 @@ A **Virtual Machine (VM)** is a scalable compute resource that runs on virtualiz
 #### Network Security Group (NSG)
 A **Network Security Group (NSG)** is a set of security rules that control inbound and outbound network traffic to resources in a Virtual Network (VNet), such as Virtual Machines (VMs) and subnets. NSGs help secure cloud environments by allowing or denying traffic based on various criteria.
 
+![VM](VM.png)
 
-![VM architecture](../azure/VM/VM.png)
 
 
 
@@ -189,7 +189,7 @@ A Virtual Network (VNet) provides isolated networking for resources in the cloud
 
 
 #### How to Create a Virtual Machine (VM)
-### --> Basic
+##### --> Basic
 1. **Search** for Virtual Machine on the Azure Portal. 
 - Create a new VM : **"Virtual Machine"** > Click **"Create"** > Select **"Azure Virtual Machine"**.
 2. Configure the settings for the VM: 
@@ -205,18 +205,18 @@ A Virtual Network (VNet) provides isolated networking for resources in the cloud
 -  Select **your** Stored key (e.g tech264..).
 -  Select `HTTP (80)` under **select inbound ports**. Both `SHH (22)` and `HTTP (80)` should be selected. You need to set up a certificate to use `HHTPS (443)`.
  
-## --> Disks
+##### --> Disks
 1. Change OS Disk type to `Standard SSD (locally redundant storage)`.
  
-## --> Networking
+##### --> Networking
 1. Change the **virtual network** to your own one, as it will default alphabetically.
 2. Change **subnet** to `public-subnet`.
 3. Enable **Delete public IP and NIC when VM is deleted**. Automates this just in case you forget to do it yourself.
  
-## --> Tags
+##### --> Tags
 1. Select `Owner : (your name)`.
  
-## --> Review and Create
+##### --> Review and Create
 1. Make sure all your details are correct.
 
 
@@ -236,6 +236,7 @@ A Virtual Network (VNet) provides isolated networking for resources in the cloud
 3. copy the private key and paste it in the native ssh
 
 # Linux 
+
 
 # Linux commands
 * `uname:` - Prints system information like the kernel name. Example: uname might return Linux.
@@ -300,11 +301,11 @@ confirming with -y. **Warnin**g: If packages are already upgraded, this might ca
 
 
 
-### **What is the command to view file ownership?**
+### What is the command to view file ownership?
 `ls -l` :lists files in the current directory along with details such as file permissions, number of links, owner, group, file size, and modification date
 
 
-### **What permissions are set when a user creates a file or directory? Who does file or directory belong to?**
+### What permissions are set when a user creates a file or directory? Who does file or directory belong to?
 `When a user creates a file or directory, the permissions are typically defined by the system's umask value, which sets default permissions. Common defaults are:`
 
   * `For **files: rw-r--r-- (644)**` meaning the owner can read and write, while the group and others can only read.
@@ -312,10 +313,10 @@ confirming with -y. **Warnin**g: If packages are already upgraded, this might ca
 
 
 
-### **Why does the owner, by default, not recieve X permissions when they create a file?**
+### Why does the owner, by default, not recieve X permissions when they create a file?
 The owner does not receive execute (x) permissions on a file by default because files are typically created as data files (like text documents), which do not require execution rights. Only executable files, like scripts or programs, need execute permissions. If execute permissions were set by default, it could lead to accidental execution of files that are not meant to be executable, posing a security risk.
 
-### **What command is used to change the owner of a file or directory?**
+### What command is used to change the owner of a file or directory?
 ```bash
 chown <new_owner> <file/directory>
 ```
@@ -323,11 +324,11 @@ chown <new_owner> <file/directory>
 # Linux - Linux - Research managing file permissions
 
 
-### **Does being the owner of a file mean you have full permissions on that file? Explain.**
+### Does being the owner of a file mean you have full permissions on that file? Explain.
 No, being the owner of a file does not necessarily mean you have full permissions on that file. Permissions are explicitly defined using the read (r), write (w), and execute (x) flags.The owner of a file can be assigned any combination of these permissions.
 
 
-### **If you give permissions to the User entity, what does this mean?**
+### If you give permissions to the User entity, what does this mean?
 
 When you give permissions to the **User** entity (also referred to as the **owner**), you are defining what the owner of the file can do with the file. The owner can be the user who created the file or another user, and their permissions could include:
 
@@ -335,19 +336,19 @@ When you give permissions to the **User** entity (also referred to as the **owne
 * **Write (w):** Ability to modify or delete the file.
 * **Execute (x):** Ability to execute the file (only applicable to executable files like scripts or binaries).
 
-### **If you give permissions to the Group entity, what does this mean?**
+### If you give permissions to the Group entity, what does this mean?
 When you give permissions to the **Group** entity, you are specifying what users who belong to the file’s group can do. A group is a collection of users, and group permissions define access for all users within that group.
 
 
-### **If you give permissions to the Other entity, what does this mean?**
+### If you give permissions to the Other entity, what does this mean?
 The **Other** entity represents all users on the system who are not the file’s owner and do not belong to the file's group. Permissions assigned to the "Other" entity apply to everyone else.
 
 
-### **You give the following permissions to a file: User permissions are read-only, Group permissions are read and write, Other permissions are read, write and execute. You are logged in as the user which is owner of the file. What permissions will you have on this file? Explain.**
+### You give the following permissions to a file: User permissions are read-only, Group permissions are read and write, Other permissions are read, write and execute. You are logged in as the user which is owner of the file. What permissions will you have on this file? Explain.
 
 If you are the **user (owner)** of the file and have been given read-only permissions, you will only be able to **read** the file. Even though the group and other entities have more extensive permissions (such as write or execute), those do not apply to the owner unless explicitly granted. In this case, since the owner has only read permissions, you cannot write to or execute the file, even though the group and others can.
 
-### **Here is one line from the ls -l. Work everything you can about permissions on this file or directory.**
+### Here is one line from the ls -l. Work everything you can about permissions on this file or directory.
 ```bash
 -rwxr-xr-- 1 tcboony staff  123 Nov 25 18:36 keeprunning.sh
 ```
@@ -380,7 +381,7 @@ Based on the permissions `(rwxr-xr--)`:
 # Linux - Research managing file permissions using numeric values
 
 
-### **What numeric values are assigned to each permission?**
+### What numeric values are assigned to each permission?
 * Read (r): `4`
 * Write (w): `2`
 * Execute (x): `1`
@@ -392,25 +393,25 @@ These values can be combined to represent multiple permissions:
 * Read + Execute (r+x): `4 + 1 = 5`
 * Read + Write + Execute (r+w+x): `4 + 2 + 1 = 7`
   
-### **What can you with the values assign read + write permissions?**
+### What can you with the values assign read + write permissions?
 To assign read + write permissions, the value 6 is used. This is because:
 * Read is `4`
 * Write is `2` So, `4 + 2 = 6.`
   
-### **What value would assign read, write and execute permissions?**
+### What value would assign read, write and execute permissions?
 To assign read, write, and execute permissions, the value 7 is used. This is because:
 
 * Read is `4`
 * Write is `2`
 * Execute is `1` So, `4 + 2 + 1 = 7`.
   
-### **What value would assign read and execute permissions?**
+### What value would assign read and execute permissions?
 To assign read and execute permissions, the value 5 is used. This is because:
 
 * Read is `4`
 * Execute is `1` So, `4 + 1 = 5.`
   
-### **Often, a file or directory's mode/permissions are represented by 3 numbers. What do you think 644 would mean?**
+### Often, a file or directory's mode/permissions are represented by 3 numbers. What do you think 644 would mean?
 When a file’s mode is represented by three numbers, they correspond to the permissions for the `owner (user)`, `group`, and `others` (everyone else), respectively.
 * 6: For the `owner`, this means `read + write (4 + 2).`
 * 4: For the `group`, this means `read-only (4)`.
@@ -420,17 +421,17 @@ When a file’s mode is represented by three numbers, they correspond to the per
 # Linux - Research changing file permissions
 
 
-### **What command changes file permissions?**
+### What command changes file permissions?
 ```bash
 chmod
 ```
-### **To change permissions on a file what must the end user be? (2 answers)**
+### To change permissions on a file what must the end user be? (2 answers)
 To change permissions on a file, the end user must be either:
 
 * The `owner` of the file.
 * A `superuser (root)` with elevated privileges.
   
-### **Give examples of some different ways/syntaxes to set permissions on a new file (named `testfile.txt`) to:**
+### Give examples of some different ways/syntaxes to set permissions on a new file (named `testfile.txt`) to:
 a.  Set User to read, Group to read + write + execute, and Other to read and write only
 - Using symbolic mode:
 ```bash
