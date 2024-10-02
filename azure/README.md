@@ -21,7 +21,7 @@
   - [Details You Need for Planning a VNet:](#details-you-need-for-planning-a-vnet)
     - [CIDR Block:](#cidr-block)
     - [Subnets:](#subnets)
-  - [Plan to create a VM](#plan-to-create-a-vm)
+- [Plan to create a VM](#plan-to-create-a-vm)
 - [**How to Create a Virtual Machine (VM)**](#how-to-create-a-virtual-machine-vm)
   - [--\> Basic](#---basic)
   - [--\> Disks](#---disks)
@@ -172,7 +172,7 @@ A Virtual Network (VNet) provides isolated networking for resources in the cloud
 - Subnets can be classified as public (with external internet access) or private (internal-only).
 
 
-## Plan to create a VM
+# Plan to create a VM
 - Virtual network + subnet.
 - Name.
 - Location + pricing.
