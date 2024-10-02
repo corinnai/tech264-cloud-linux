@@ -1,38 +1,36 @@
 # Learning Cloud Computing - AZURE
 - [Learning Cloud Computing - AZURE](#learning-cloud-computing---azure)
-  - [Learning Cloud Computing - AZURE](#learning-cloud-computing---azure-1)
-    - [Cloud Architecture](#cloud-architecture)
-      - [Virtual Network (VNet)](#virtual-network-vnet)
-      - [Subnet](#subnet)
-      - [Resource Group](#resource-group)
-      - [Disk](#disk)
-      - [Public IP](#public-ip)
-      - [NSG Rule - Allow HTTP](#nsg-rule---allow-http)
-      - [NSG Rule - Allow SSH](#nsg-rule---allow-ssh)
-      - [Region](#region)
-      - [SSH Key](#ssh-key)
-      - [Network Interface Controller (NIC)](#network-interface-controller-nic)
-      - [Virtual Machine (VM)](#virtual-machine-vm)
-      - [Network Security Group (NSG)](#network-security-group-nsg)
-    - [**Steps to Create an SSH Key Pair on a Local Machine and Put the Public Key on Azure**](#steps-to-create-an-ssh-key-pair-on-a-local-machine-and-put-the-public-key-on-azure)
-      - [Creating a New SSH Key Pair on a Local Machine](#creating-a-new-ssh-key-pair-on-a-local-machine)
-      - [Creating a VNet in Azure](#creating-a-vnet-in-azure)
-      - [Setting an SSH key in Azure](#setting-an-ssh-key-in-azure)
-    - [Why Create a VNet?](#why-create-a-vnet)
-    - [Details You Need for Planning a VNet:](#details-you-need-for-planning-a-vnet)
-      - [CIDR Block:](#cidr-block)
-      - [Subnets:](#subnets)
-    - [Plan to create a VM](#plan-to-create-a-vm)
-      - [How to Create a Virtual Machine (VM)](#how-to-create-a-virtual-machine-vm)
-        - [--\> Basic](#---basic)
-        - [--\> Disks](#---disks)
-        - [--\> Networking](#---networking)
-        - [--\> Tags](#---tags)
-        - [--\> Review and Create](#---review-and-create)
-    - [Connecting Your Virtual Machine](#connecting-your-virtual-machine)
+- [Cloud Architecture](#cloud-architecture)
+  - [Virtual Network (VNet)](#virtual-network-vnet)
+  - [Subnet](#subnet)
+  - [Resource Group](#resource-group)
+  - [Disk](#disk)
+  - [Public IP](#public-ip)
+  - [NSG Rule - Allow HTTP](#nsg-rule---allow-http)
+  - [NSG Rule - Allow SSH](#nsg-rule---allow-ssh)
+  - [Region](#region)
+  - [SSH Key](#ssh-key)
+  - [Network Interface Controller (NIC)](#network-interface-controller-nic)
+  - [Virtual Machine (VM)](#virtual-machine-vm)
+  - [Network Security Group (NSG)](#network-security-group-nsg)
+- [**Steps to Create an SSH Key Pair on a Local Machine and Put the Public Key on Azure**](#steps-to-create-an-ssh-key-pair-on-a-local-machine-and-put-the-public-key-on-azure)
+  - [Creating a New SSH Key Pair on a Local Machine](#creating-a-new-ssh-key-pair-on-a-local-machine)
+  - [Creating a VNet in Azure](#creating-a-vnet-in-azure)
+  - [Setting an SSH key in Azure](#setting-an-ssh-key-in-azure)
+- [**Why Create a VNet?**](#why-create-a-vnet)
+  - [Details You Need for Planning a VNet:](#details-you-need-for-planning-a-vnet)
+    - [CIDR Block:](#cidr-block)
+    - [Subnets:](#subnets)
+  - [Plan to create a VM](#plan-to-create-a-vm)
+- [**How to Create a Virtual Machine (VM)**](#how-to-create-a-virtual-machine-vm)
+  - [--\> Basic](#---basic)
+  - [--\> Disks](#---disks)
+  - [--\> Networking](#---networking)
+  - [--\> Tags](#---tags)
+  - [--\> Review and Create](#---review-and-create)
+- [**Connecting Your Virtual Machine**](#connecting-your-virtual-machine)
     - [How to see your SSH key in Git Bash :](#how-to-see-your-ssh-key-in-git-bash-)
-- [Linux](#linux)
-- [Linux commands](#linux-commands)
+- [**Linux commands**](#linux-commands)
 - [Linux - research managing file ownership with LInux](#linux---research-managing-file-ownership-with-linux)
     - [**Why is managing file ownership important?**](#why-is-managing-file-ownership-important)
     - [What is the command to view file ownership?](#what-is-the-command-to-view-file-ownership)
@@ -58,46 +56,43 @@
     - [Give examples of some different ways/syntaxes to set permissions on a new file (named `testfile.txt`) to:](#give-examples-of-some-different-wayssyntaxes-to-set-permissions-on-a-new-file-named-testfiletxt-to)
 
 
+# Cloud Architecture
 
-## Learning Cloud Computing - AZURE
-
-### Cloud Architecture
-
-#### Virtual Network (VNet)
+## Virtual Network (VNet)
 A **Virtual Network (VNet)** provides an isolated network where you can securely deploy and manage resources such as virtual machines (VMs). VNets allow for communication between resources in the same network and can be connected to on-premises networks.
 
-#### Subnet
+## Subnet
 A **Subnet** is a range of IP addresses within a Virtual Network (VNet). Subnets allow you to segment your VNet into smaller networks, helping to organize resources and apply security rules more efficiently.
 
-#### Resource Group
+## Resource Group
 A **Resource Group** is a container used to organize and manage related cloud resources such as virtual machines, storage, and networks. It allows for easier management, monitoring, and billing of these resources.
 
-#### Disk
+## Disk
 A **Disk** in cloud environments is virtual storage attached to a Virtual Machine (VM). Disks store operating systems, applications, and data.
 
 
-#### Public IP
+## Public IP
 A **Public IP** address allows resources like Virtual Machines (VMs) to communicate with the internet. It provides external-facing connectivity to your cloud resources.
 
-#### NSG Rule - Allow HTTP
+## NSG Rule - Allow HTTP
 An **NSG (Network Security Group)** rule to allow HTTP traffic permits inbound and/or outbound web traffic, typically used for web applications. This rule allows public HTTP access to resources like web servers.
 
-#### NSG Rule - Allow SSH
+## NSG Rule - Allow SSH
 An **NSG rule** to allow SSH traffic permits inbound connections, enabling remote access to a Virtual Machine (VM) through a Secure Shell (SSH) protocol.
 
-#### Region
+## Region
 A **Region** refers to a geographical location where cloud resources are deployed. Each region consists of multiple data centers and provides redundancy, lower latency, and compliance with data sovereignty regulations.
 
-#### SSH Key
+## SSH Key
 An **SSH Key** is a pair of cryptographic keys (public and private) used for secure authentication when accessing Virtual Machines (VMs). The private key is kept by the user, and the public key is stored in the VM.
 
-#### Network Interface Controller (NIC)
+## Network Interface Controller (NIC)
 A **Network Interface Controller (NIC)** is the virtualized hardware that allows a Virtual Machine (VM) to connect to a network. Each NIC is assigned an IP address and provides communication between the VM and other resources.
 
-#### Virtual Machine (VM)
+## Virtual Machine (VM)
 A **Virtual Machine (VM)** is a scalable compute resource that runs on virtualized hardware in the cloud. VMs allow users to run applications and workloads without needing to maintain physical servers.
 
-#### Network Security Group (NSG)
+## Network Security Group (NSG)
 A **Network Security Group (NSG)** is a set of security rules that control inbound and outbound network traffic to resources in a Virtual Network (VNet), such as Virtual Machines (VMs) and subnets. NSGs help secure cloud environments by allowing or denying traffic based on various criteria.
 
 ![VM](VM.png)
@@ -105,9 +100,9 @@ A **Network Security Group (NSG)** is a set of security rules that control inbou
 
 
 
-### **Steps to Create an SSH Key Pair on a Local Machine and Put the Public Key on Azure**
+# **Steps to Create an SSH Key Pair on a Local Machine and Put the Public Key on Azure**
 
-#### Creating a New SSH Key Pair on a Local Machine
+## Creating a New SSH Key Pair on a Local Machine
 
 1. Open a terminal on your local machine.
 2. Navigate to home directory `cd ~`
@@ -130,7 +125,7 @@ This command generates two files:
 cat ~/.ssh/mykey.pub
 ```
 
-#### Creating a VNet in Azure
+## Creating a VNet in Azure
 
 1. Navigate to the Azure portal: https://portal.azure.com.
 2. Create a new Virtual Network:
@@ -145,7 +140,7 @@ cat ~/.ssh/mykey.pub
 5. Submition:
 - Review and click Create.
   
-#### Setting an SSH key in Azure
+## Setting an SSH key in Azure
 
 1. Navigate to the Azure portal: https://portal.azure.com.
 2. Create a new SSH key:
@@ -160,7 +155,7 @@ cat ~/.ssh/mykey.pub
 5. Submition:
 Review and click **Create**.
 
-### Why Create a VNet?
+# **Why Create a VNet?**
 A Virtual Network (VNet) provides isolated networking for resources in the cloud. VNets allow you to:
 
 - Segment resources using subnets (private or public).
@@ -168,16 +163,16 @@ A Virtual Network (VNet) provides isolated networking for resources in the cloud
 - Enable secure communication between on-premises and cloud resources via VPN or ExpressRoute.
 - Protect sensitive workloads by keeping traffic internal.
 
-### Details You Need for Planning a VNet:
+## Details You Need for Planning a VNet:
 
-#### CIDR Block:
+### CIDR Block:
 - Define the IP address range for the VNet, typically in CIDR notation (e.g., 10.0.0.0/16).
-#### Subnets:
+### Subnets:
 - Divide the VNet into subnets. Each subnet gets its own CIDR block within the VNet’s range.
 - Subnets can be classified as public (with external internet access) or private (internal-only).
 
 
-### Plan to create a VM
+## Plan to create a VM
 - Virtual network + subnet.
 - Name.
 - Location + pricing.
@@ -188,8 +183,8 @@ A Virtual Network (VNet) provides isolated networking for resources in the cloud
 
 
 
-#### How to Create a Virtual Machine (VM)
-##### --> Basic
+# **How to Create a Virtual Machine (VM)**
+## --> Basic
 1. **Search** for Virtual Machine on the Azure Portal. 
 - Create a new VM : **"Virtual Machine"** > Click **"Create"** > Select **"Azure Virtual Machine"**.
 2. Configure the settings for the VM: 
@@ -205,23 +200,23 @@ A Virtual Network (VNet) provides isolated networking for resources in the cloud
 -  Select **your** Stored key (e.g tech264..).
 -  Select `HTTP (80)` under **select inbound ports**. Both `SHH (22)` and `HTTP (80)` should be selected. You need to set up a certificate to use `HHTPS (443)`.
  
-##### --> Disks
+## --> Disks
 1. Change OS Disk type to `Standard SSD (locally redundant storage)`.
  
-##### --> Networking
+## --> Networking
 1. Change the **virtual network** to your own one, as it will default alphabetically.
 2. Change **subnet** to `public-subnet`.
 3. Enable **Delete public IP and NIC when VM is deleted**. Automates this just in case you forget to do it yourself.
  
-##### --> Tags
+## --> Tags
 1. Select `Owner : (your name)`.
  
-##### --> Review and Create
+## --> Review and Create
 1. Make sure all your details are correct.
 
 
 
-### Connecting Your Virtual Machine
+# **Connecting Your Virtual Machine**
 1. **Start** your virtual machine.
 2. Navigate to "Connect" under your VM.
 3. Find "Native SSH" and **select** it. A side panel should open.
@@ -235,10 +230,7 @@ A Virtual Network (VNet) provides isolated networking for resources in the cloud
 2. ls
 3. copy the private key and paste it in the native ssh
 
-# Linux 
-
-
-# Linux commands
+# **Linux commands**
 * `uname:` - Prints system information like the kernel name. Example: uname might return Linux.
 * `uname --help:`- Displays help information for the uname command, showing available options.
 * `uname -a:`- Prints all system information, including kernel name, version, hostname, etc. Example output: Linux hostname 5.4.0-42-generic #46-Ubuntu SMP x86_64 GNU/Linux.
