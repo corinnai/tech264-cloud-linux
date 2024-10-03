@@ -55,6 +55,15 @@
     - [To change permissions on a file what must the end user be? (2 answers)](#to-change-permissions-on-a-file-what-must-the-end-user-be-2-answers)
     - [Give examples of some different ways/syntaxes to set permissions on a new file (named `testfile.txt`) to:](#give-examples-of-some-different-wayssyntaxes-to-set-permissions-on-a-new-file-named-testfiletxt-to)
 - [How to Write a Bash Script: provision nginx](#how-to-write-a-bash-script-provision-nginx)
+- [Linux Environment Variables](#linux-environment-variables)
+  - [How to set, view variables](#how-to-set-view-variables)
+  - [How to set, view environment variables](#how-to-set-view-environment-variables)
+  - [How to make environment variables persistent (for the same user)](#how-to-make-environment-variables-persistent-for-the-same-user)
+    - [Step-by-Step to Make a Variable Persistent:](#step-by-step-to-make-a-variable-persistent)
+- [Linux Processes](#linux-processes)
+  - [commands to list](#commands-to-list)
+  - [commands to kill](#commands-to-kill)
+  - [why you need to be careful with brute-force kill, what is best to try first and why](#why-you-need-to-be-careful-with-brute-force-kill-what-is-best-to-try-first-and-why)
 
 
 # Cloud Architecture
@@ -487,3 +496,126 @@ ls -l :
 ```bash
 apt : used for installing 
 ```
+
+
+# Linux Environment Variables 
+
+ An **environment variable** in Linux is a dynamic value that can affect the behavior of running processes. These variables are used to pass information from the shell or system to programs, applications, and scripts.
+ 
+## How to set, view variables
+- **Setting a Shell Variable:**
+```bash
+MYVAR="Hello"
+```
+- **Viewing a Shell Variable:**
+```bash
+echo $MYVAR
+```
+- **Converting a Shell Variable to an Environment Variable:**
+```bash
+export MYVAR
+```
+- **Set and Export a Variable in One Command:**
+```bash
+export MYVAR="Hello"
+```
+
+## How to set, view environment variables
+
+- **Set an Environment Variable:**
+```bash
+export MYENVVAR="World"
+```
+- **View an Environment Variable:**
+```bash
+echo $MYENVVAR
+```
+- **List All Environment Variables**:
+```bash
+printenv
+```
+- **View a Specific Environment Variable:**
+```bash
+printenv MYENVVAR
+```
+## How to make environment variables persistent (for the same user)
+### Step-by-Step to Make a Variable Persistent:
+1. Open your .bashrc (or .bash_profile) file using a text editor:
+```bash
+nano ~/.bashrc
+```
+2. Add the following line at the end of the file:
+```bash
+export MYENVVAR="World"
+```
+3. Save the file and exit the editor (in nano, this is done by pressing `Ctrl + S`, then Enter, and `Ctrl + X` to exit)
+4. Apply the changes immediately by running:
+```bash
+source ~/.bashrc
+```
+- `echo "export MYNAME=maria_is_persistent" >> .bashrc`
+This command appends the line `export MYNAME=maria_is_persistent` to the end of the `.bashrc` file.
+  - `>>`: This operator `appends` the text to a file (in this case, .bashrc). If the file does not exist, it will create it.
+  - `Effect`: This makes the `MYNAME `environment variable `persistent`. Every time you open a new terminal or start a new shell session, the .bashrc file will be read, and the MYNAME variable will be set to "maria_is_persistent", making it available in future sessions.
+
+
+# Linux Processes 
+ A process is an instance of a running program. Linux provides several commands to list, manage, and terminate these processes. Here’s an overview of useful commands for working with processes and how to handle them carefully.
+
+## commands to list
+1. `ps:` Displays information about active processes.
+- basic usage:
+```bash
+ps
+```
+- View all system processes:
+```bash
+ps -A    # or ps -e
+```
+- Detailed view (including memory and CPU usage):
+```bash
+ps aux
+```
+2. `top:` Interactive, real-time view of system processes.
+- Shows processes dynamically and updates every few seconds.
+- Press `q `to quit.
+- You can sort processes by CPU `(Shift+P)` or memory `(Shift+M)` usage, `Shift+N:` Sort by process age.
+
+3. `htop`: A more user-friendly version of `top` (if installed).
+```bash
+sudo apt install htop  # to install
+htop  # to run
+```
+4. ` jobs`: Lists jobs (background processes) in the current shell session.
+```bash
+jobs
+```
+
+## commands to kill
+sleep 5000 & 
+1. `kill -1 PID:` Gently terminates a process by its ID (PID).
+```bash
+kill -1 PID
+pid(process ID)
+```
+sleep 3000 &
+2. `kill PID`: Sends a signal to a process, usually to terminate it.
+```bash
+killall PID
+```
+sleep 7000 &
+3. `kill -9 PID`: Forcibly terminates a process (might create zombie processes).
+```bash
+kill -9 12345
+```
+
+## why you need to be careful with brute-force kill, what is best to try first and why
+- `kill -9 (or SIGKILL)` is the most forceful way to terminate a process.
+- It does not allow the process to clean up properly. Normally, when a process is killed, it can release resources (like memory, file handles, etc.) and notify other dependent processes. With kill -9, the process is stopped immediately, without any cleanup.
+- This can lead to:
+  - **Data loss**: If the process was writing to files or performing critical operations.
+  - **Zombie processes**: If the parent process isn't notified of the termination, the process may become a "zombie" and stay in the process table until the system reboots or the parent handles it.
+  - **Unstable system state:** Especially if the process is a system or critical process.
+- What to Try First:
+  - `kill -1 PID (SIGHUP):`Hangup
+  - `kill PID (SIGTERM):`
