@@ -54,6 +54,7 @@
     - [What command changes file permissions?](#what-command-changes-file-permissions)
     - [To change permissions on a file what must the end user be? (2 answers)](#to-change-permissions-on-a-file-what-must-the-end-user-be-2-answers)
     - [Give examples of some different ways/syntaxes to set permissions on a new file (named `testfile.txt`) to:](#give-examples-of-some-different-wayssyntaxes-to-set-permissions-on-a-new-file-named-testfiletxt-to)
+- [How to Write a Bash Script: provision nginx](#how-to-write-a-bash-script-provision-nginx)
 
 
 # Cloud Architecture
@@ -462,3 +463,27 @@ This gives:
 * User: `6` (read + write)
 * Group: `4` (read-only)
 * Other: `0` (no permissions)
+
+
+
+# How to Write a Bash Script: provision nginx
+
+1. use `nano provision.sh` to begin creating your `provision.sh` file, which will host the script.
+2. In the nano interface, write the following lines (be sure to write comments using `#` to help with understanding):
+   - `#!/bin/bash`, which i called "**shebang**". This specifies which interpreter should be used to execute the script - so this tells it to use the **Bash** script.
+   - `# update` :`sudo apt update -y`
+   - `# upgrade` : `sudo apt upgrade -y`
+   - `# install nginx` : `sudo apt install -y nginx`
+   - `# restart nginx` :`sudo systemctl restart nginx`
+   -` # enable nginx - run when start when you start your VM` :`sudo systemctl enable nginx`
+3. Save the script by clicking `CTRL+S`, then exit the script by clicking `CTRL+X` to return back to your regular linux CL.
+4. 4. Since the default **permissions** do not allow you to execute the script, use `chmod +x provision.sh` to add **execution** **permissions** to the file.
+5. Run the script using `./provision.sh`.(the dot . - means the script is in the current direc.)
+   
+```bash
+ls -l : 
+```
+
+```bash
+apt : used for installing 
+```
