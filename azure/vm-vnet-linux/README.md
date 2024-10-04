@@ -31,7 +31,7 @@
 - [**Connecting Your Virtual Machine**](#connecting-your-virtual-machine)
     - [How to see your SSH key in Git Bash :](#how-to-see-your-ssh-key-in-git-bash-)
 - [**Linux commands**](#linux-commands)
-- [Linux - research managing file ownership with LInux](#linux---research-managing-file-ownership-with-linux)
+- [Linux - research managing file ownership with Linux](#linux---research-managing-file-ownership-with-linux)
     - [**Why is managing file ownership important?**](#why-is-managing-file-ownership-important)
     - [What is the command to view file ownership?](#what-is-the-command-to-view-file-ownership)
     - [What permissions are set when a user creates a file or directory? Who does file or directory belong to?](#what-permissions-are-set-when-a-user-creates-a-file-or-directory-who-does-file-or-directory-belong-to)
@@ -294,7 +294,7 @@ confirming with -y. **Warnin**g: If packages are already upgraded, this might ca
 * `exit:`-   Exits the root account and returns to the regular user session.
 
 
-# Linux - research managing file ownership with LInux
+# Linux - research managing file ownership with Linux
 
 ### **Why is managing file ownership important?**
 * **Security:** It helps control who can access, modify, or execute files. This is important in multi-user systems to prevent unauthorized users from altering sensitive files.
