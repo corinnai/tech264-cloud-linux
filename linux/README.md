@@ -572,7 +572,7 @@ The scp command is straightforward and works similarly to the cp command, but al
  ```
 1. `connect to the vm using the SSH Key`
 2. `ls` : supposed to have :
-![alt text](app_prov-app.sh.png)
+![alt text](images/app_prov-app.sh.png)
 3. `cd into app`
 4. `ls`
 5. 
@@ -686,7 +686,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y mongodb-org=7.0.6 mongodb
 ```
 
 8. **If this image pops up**: `tab -> enter`
-![user prompt](mongodb.png)
+![user prompt](images/mongodb.png)
 
 9. **Check if the database is running** :
 ```bash
@@ -708,7 +708,7 @@ sudo nano /etc/mongod.conf
 
 # change to 0.0.0.0 - means accepting connections from any IP
 ```
-![bindIp](bindIp.png)
+![bindIp](images/bindIp.png)
 
 13. **Restart the database:**
 ```bash
@@ -746,7 +746,7 @@ printenv DB_HOST
 ```bash
 npm install
 ```
-![database_succesfully](database_succesfully.png)
+![database_succesfully](images/database_succesfully.png)
 
 20. **Start:**
 ```bash
@@ -990,5 +990,125 @@ sudo systemctl restart nginx
 Installing NGINX.
 
 ```bash
-
+ # Installing the NGINX web service.
+echo install nginx...
+sudo DEBIAN_FRONTEND=noninteractive apt-get install nginx -y
+echo Done!
 ```
+
+Configuring nginx to reverse proxy (divert traffic) to port 3000.
+
+```bash
+# Modifying the nginx configuration file to transfer traffic to port 3000.
+echo modifying nginx config file...
+sudo sed -i 's/try_files $uri $uri/ =404;/proxy_pass http://localhost:3000;/g' /etc/nginx/sites-available/default
+echo Done!
+```
+Restarting nginx to apply configurations.
+```bash
+# Restarting nginx to apply configurations
+echo restarting nginx...
+sudo systemctl restart nginx
+echo Done!
+```
+*Note: Nginx is configured as enabled by default so no need to manually enable the service*
+
+# Task: Run Sparta app in the background
+
+Work out ways to both run, stop and re-start the app in the background (besides using the "&" at the end of the command):
+
+**Issue with using this method when it comes to stopping/re-starting the app**
+
+The issue with managing the state of the app without a process manager is that we would manually have to terminate run the app
+
+## Use pm2 to start and stop the app in your app script
+
+### pm2: Commands
+* pm2 : A production process manager that allows you to run your apps in the background, keep them alive (restart automatically if they crash), monitor performance, and handle logs.
+
+* pm2 start npm -- start : Tells PM2 to start a new process using the npm command to execute the start script defined in your package.json. It launches your Node.js application in the background
+
+* pm2 stop npm : If you have multiple processes managed by PM2 that were started with the npm -- start, you can stop them all using this command. This effectively halts the application, but does not remove it from PM2's process list.
+
+* pm2 restart npm : This command restarts the running process associated with the npm command. PM2 will first stop the current instance and then start it again, ensuring any updates or changes are applied.
+
+* Don't forget to install PM2 in your script using sudo npm install -g pm2. The -g installs this globally, meaning we can access PM2 from any terminal window without needing to be in a specific project directory.
+
+
+### Automating pm2 to run our app.
+
+Installing pm2 (process manager).
+```bash
+# Installing pm2.
+echo installing pm2...
+sudo npm install -g pm2
+echo Done!
+```
+If any processes are occupying our ports stop them.
+```bash
+# Stop all processes managed by pm2
+echo Stopping all pm2 processes
+pm2 stop all
+echo Done!
+```
+Run our app in the background managed by pm2.
+```bash
+# Running the app in the background via pm2.
+echo running app...
+pm2 start app.js
+echo app running in the background...
+```
+
+# Task: Automate app Stage 3 - Automate app deployment with user data
+
+Things to consider:
+
+* When running the script in user data it is run within the root directory.
+* Meaning the app needs to be accessed from the root directory.
+
+App script :[prov-app-script](prov-app-script.sh)
+
+DB script: [prov-db-script](prov-db-scrpit.sh)
+
+
+# Create an Image from a VM
+
+## Create a Custom Generalized Image
+### Prepare the VM for Generalization:
+
+* SSH into your working database VM (this VM should be fully configured).
+
+* Run the following commands to deprovision and generalize the VM:
+
+```bash
+sudo waagent -deprovision+user
+```
+### Capture the Image:
+* In the Azure Portal, navigate to the VM you just prepared.
+* Click on Capture > Image in the toolbar.
+
+### In the capture image window:
+* Enter tech264-firstname-ready-to-run-database-image as the name of the image.
+* Select the Resource group for the image.
+* Set gallery sharing to > No.
+* Check the option to Automatically delete the VM after creating the image.
+* Click Review + Create to create the image.
+* The new custom generalized image will be created and saved in your selected resource group.
+
+## Creating a New VM from the image
+Create a New VM Using the Custom Image:
+
+1. In the Azure Portal, navigate to the resources section.
+2. Select the image you created (tech264-firstname-ready-to-run-database-image).
+3. Click + Create VM to begin creating a new VM based on this image.
+
+## Summary of our Sparta App
+
+1. We followed the steps of - Create a Custom Generalized Image & Creating a New VM from the image - for our Database VM.
+2. We then did the same for the Application VM + we added a script to:
+    - Set the DB_Host environment variable that acts as our database connection.
+    - Changed directory to point to the app folder.
+    - Stopped all existing processes run by pm2.
+    - Start the app.js file via pm2
+
+Userdata app script : [userdata-app-script](userdata-app-scrpit.sh)
