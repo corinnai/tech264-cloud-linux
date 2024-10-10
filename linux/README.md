@@ -1111,4 +1111,37 @@ Create a New VM Using the Custom Image:
     - Stopped all existing processes run by pm2.
     - Start the app.js file via pm2
 
-Userdata app script : [userdata-app-script](userdata-app-scrpit.sh)
+Userdata app script : [userdata-app-scr](userdata-app-scrpit.sh)
+
+
+# PWD (current directory):
+## pwd
+```bash 
+pwd #(current directory)
+/home/adminuser/scripts
+provision.sh located in your home directory
+```
+*  When you run `pwd`, it shows the `current directory` you are in, which in this case is `/home/adminuser/scripts`.
+* This means you are `inside` the `scripts folder`, which is located under `the adminuser home directory`.
+
+```bash
+    ~/provision.sh
+``` 
+* The` tilde (~)` represents your `home directory` `(/home/adminuser)`, so `~/provision.sh` is a shorthand way of referring to `/home/adminuser/provision.sh`.
+* This path points to a file named provision.sh located in your home directory.
+
+```bash
+../provision.sh
+```
+* The `double dots (..)` represent the p`arent directory` of `your current location.`
+* Since you're currently in `/home/adminuser/scripts`, `../provision.sh` takes you one level up `(to /home/adminuser)` and points to the provision.sh file there.
+* So this is also pointing to `/home/adminuser/provision.sh`.
+
+```bash
+/home/adminuser/provision.sh
+```
+* This is the full (absolute) path to the provision.sh file located in the home directory of the adminuser user.
+* It directly points to the file, regardless of your current directory.
+
+
+
