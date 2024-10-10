@@ -1,206 +1,295 @@
-# Setting the test app with the VM
+# Script for app 
 
-
-# How to add a port
-1. Navigate to your VM's **network settings**.
-2. Open up **Settings** and click **inbound security rules**.
-3. Change the **destination port** to `3000`.
-4. Change protocol to **TCP**.
-5. Change the priority. The **lower** the priority, the **higher** the priority
-
-# SCP command and how it works
-1. in `GitBash` paste this command
- ```bash
- scp -i /path/to/your/private_key -r /path/to/local/directory username@remote_ip:/path/to/remote/destination/
- #This is the command used to securely copy files or directories between a local machine and a remote machine over SSH.
- ```
-2. `connect to the vm using the SSH Key`
-3. `ls` : supposed to have :
-![app](app_prov-app.sh.png)
-4. `cd into app`
-5. `ls`
-6. 
 ```bash
+#!/bin/bash
+
+# Check for updates
+echo "update sources list..."
+sudo apt update -y
+echo "update complete"
+
+# Upgrades those checks
+echo "upgrade any packages available..."
+sudo DEBIAN_FRONTEND=noninteractive apt upgrade -y
+echo "upgrade complete"
+
+# Install nginx
+sudo apt install -y nginx
+echo "nginx installed"
+
+echo "install nodejs v20..."
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - &&\
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs
+
+echo "check nodejs version..."
+node -v
+echo "nodejs v20 installed"
+
+# Cloning Git repo
+echo "Clone Git folder"
+git clone https://github.com/corinnai/tech264-sparta-app.git repo
+echo "Cloned tech264-sparta-app"
+
+echo "Change directory to app"
+cd repo/app
+echo "In app directory"
+
+#Set MongoDB connecting string
+export DB_HOST=mongodb://10.0.3.5:27017
+
+echo "install and run"
 npm install
-```
-7. 
-```bash
-npm audit fix
-```
-8. 
-```bash
-npm start
+echo npm "install done"
+
+
+echo "start"
+node app.js &
 ```
 
-# Setting the database on a VM
+# ------------- Script for installing DB-----------
 
-## Creating a VM
-1. Navigate to` portal.azure.com` -> `Virtual machines` -> `+ Create`
-2. **Configuration**:
-- basics:
-  - `subscription` : Azure Training
-  - `resource group` : tech264
-  - `vm name` :tech264-name-name
-  - `region` : Europe South
-  - `availability options` : No infrastructure redundancy required
-  - `security type`: standard 
-  - `image` : Ubantu Pro 22.04 LTS
-  - `size `: Standard_B1s- 1 vcpu, 1Gib memory
-  - `username`: adminuser
-  - `ssh public key sorce`: use existing key stored in Azure
-  - `select inbound ports` : SSH(22)
-- networking : 
-  - `subset` : private-subset
-- tags :
-  - `name `: owner
-  - `value` : "name"
-- review and create
-- connect : 
-  - `connect` -> `native SSH` and paste the SSH key -> copy `the SSH to VM with specified private key `
-
-3. **Open GitBash** 
-
-## Install MongoDB on Azure
-
-**Open GitBash** :
-
-1. `cd .ssh` -> paste the `SSH Key` -> enter
-2. `update and upgrade `
--
 ```bash
- sudo DEBIAN_FRONTEND=noninteractive apt-get update -y
- # DEBIAN_FRONTEND=noninteractive: This environment variable ensures that the command runs in a non-interactive mode, meaning it won't prompt the user for any input during execution. 
-```
-- 
-```bash
-sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
-```
-3.  **From a terminal, install gnupg and curl if they are not already available:**
-```bash
-sudo apt-get install gnupg curl
-
-# gnupg: stands for GNU Privacy is  used for verifying the authenticity of software packages, signing code, and securing emails using encryption
-# curl :  is a command-line tool used to transfer data to or from a server using various protocols such as HTTP, HTTPS, FTP
-```
-
-4. **To import the MongoDB public GPG key, run the following command**:
-```bash
-curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | \
-   sudo gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg \
-   --dearmor
-
-
-1.	curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc:
-•	curl: This is a command-line tool used to download files from the internet.
-•	-f: This option makes curl "fail silently" if there’s a server error, meaning it won’t show an error message on the screen.
-•	-s: This stands for "silent," which means curl won’t show progress information while downloading.
-•	-S: This option ensures that if there is an error, an error message will still be displayed.
-•	-L: This tells curl to follow any redirects if the URL changes.
-•	https://www.mongodb.org/static/pgp/server-7.0.asc: This is the URL where the MongoDB security key is located.
-2.	| (Pipe):
-•	This symbol takes the output from the command on the left (the downloaded key) and sends it to the command on the right (the gpg command).
-3.	sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor:
-•	sudo: This stands for "superuser do." It allows you to run commands that require administrative rights.
-•	gpg: This is the GNU Privacy Guard, a tool that helps manage security keys and perform encryption.
-•	-o /usr/share/keyrings/mongodb-server-7.0.gpg: This option tells gpg where to save the downloaded key file, naming it mongodb-server-7.0.gpg.
-•	--dearmor: This option converts the key from its text format (ASCII-armored) to a binary format that’s easier for the system to use.
-```
-
-5. **Create the list file for Ubuntu 22.04**:
-```bash
-echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
-
-
-
-1.	echo "deb [...]":
-•	echo: This command outputs the text provided within the quotes, which includes the details about the MongoDB repository.
-•	"deb [...]": This string defines the new repository, indicating we want to add it to our package sources.
-```
-6. **Reload the Package Database( to find the latest version)**:
-```bash
+#!/bin/bash
+ 
+# Update the system package list
+echo Updating package list...
 sudo apt-get update -y
-```
-
-7. **Install MongoDB** :
-```bash
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y mongodb-org=7.0.6 mongodb-org-database=7.0.6 mongodb-org-server=7.0.6 mongodb-mongosh=2.1.5 mongodb-org-mongos=7.0.6 mongodb-org-tools=7.0.6
-
-
-
-#	DEBIAN_FRONTEND=noninteractive:
-      # This tells the system to run the command without asking for any user input, which is useful for automation.
-```
-
-8. **If this image pops up**: `tab -> enter`
-![user prompt](mongodb.png)
-
-9. **Check if the database is running** :
-```bash
-sudo systemctl status mongod
-```
-
-10. **Start MongoDB** :
-```bash
+echo Done!
+ 
+# Upgrade all installed packages to their latest versions
+echo Upgrading installed packages...
+sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
+echo Done!
+ 
+echo Installing gnupg and curl...
+sudo apt-get install gnupg curl -y
+echo Done!
+ 
+# Download and add MongoDB GPG key for package verification
+echo Adding MongoDB GPG key...
+sudo rm -f /usr/share/keyrings/mongodb-server-7.0.gpg # Remove key if one exists
+curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | sudo gpg --yes -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
+echo Done!
+ 
+# Add MongoDB repository to the sources list
+echo Adding MongoDB repository to sources list...
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+echo Done!
+ 
+# Update package list again to include the newly added MongoDB repository
+echo Updating package list with MongoDB repository...
+sudo DEBIAN_FRONTEND=noninteractive apt-get update -y
+echo Done!
+ 
+# Install MongoDB version 7.0.6 and specific associated packages non-interactively
+echo Installing MongoDB and related packages...
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    mongodb-org=7.0.6 \
+    mongodb-org-database=7.0.6 \
+    mongodb-org-server=7.0.6 \
+    mongodb-org-shell=7.0.6 \
+    mongodb-org-mongos=7.0.6
+echo Done!
+ 
+# Start MongoDB service immediately
+echo Starting MongoDB service...
 sudo systemctl start mongod
-```
-
-11. **Rerun the status command**
-
-12. **Changing the** `bindIp` 
-```bash
-#By default, MongoDB launches with bindIp set to 127.0.0.1, which binds to the localhost network interface. This means that the mongod can only accept connections from clients that are running on the same machine.
-
-sudo nano /etc/mongod.conf
-
-# change to 0.0.0.0 - means accepting connections from any IP
-```
-![bindIp](bindIp.png)
-
-13. **Restart the database:**
-```bash
-sudo systemctl restart mongod
-```
-
-14. **Status the database( to see if is active(running)):**
-```bash
-sudo systemctl status mongod
-```
-15. **Check and set the database to start when you start the VM:**
-```bash
-sudo systemctl is-enabled mongod
-#check
-```
-```bash
+echo Done!
+ 
+# Enable MongoDB service to start on boot
+echo Enabling MongoDB service to start on boot...
 sudo systemctl enable mongod
-#set
-```
-16.  `Start the first VM` and open a `new Bash` window without closing the first one  -> `connect the VM` with Bash with `native SSH` -> `enter` -> `ls` -> `cd app` ->[app](app.png) 
-
-17.  **Connect the app to database:**
-```bash
-export DB_HOST=mongodb://"private IP address":27017/posts
-# 27017 - default mongoDB port
-# private IP address change with ur private one
-```
-
-18. **Check if is set correctly:**
-```bash
-printenv DB_HOST
+echo Done!
+ 
+# Modify MongoDB configuration to allow remote connections
+echo Configuring MongoDB to allow remote connections...
+sudo sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mongod.conf
+echo Done!
+ 
+# Restart MongoDB service to apply configurations
+echo Restarting MongoDB service...
+sudo systemctl start mongod
+echo Done!
 ```
 
-19. **Connecting to database:**
+# Reverse proxy 
+
 ```bash
+# Backup the Nginx Configuration File:
+- sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup
+
+# Open the Nginx Configuration File for Editing:
+-sudo nano /etc/nginx/sites-available/default
+
+# Modify the Nginx Configuration:
+from 
+
+-location / {
+    try_files $uri $uri/ =404;
+    }
+ to
+ 
+location / {
+    proxy_pass http://localhost:3000;
+    }
+
+# Save and Exit
+
+# Test the Nginx Configuration:
+-sudo nginx -t
+- nginx: configuration file /etc/nginx/nginx.conf test is successful
+
+
+# Restart Nginx:
+-sudo systemctl restart nginx
+```
+
+
+# Run Sparta app in the background
+
+```bash
+#!/bin/bash
+ 
+# Check for updates
+echo "update sources list..."
+sudo apt update -y
+echo "update complete"
+ 
+# Upgrades those checks
+echo "upgrade any packages available..."
+sudo DEBIAN_FRONTEND=noninteractive apt upgrade -y
+echo "upgrade complete"
+ 
+# Install nginx
+sudo apt install -y nginx
+echo "nginx installed"
+ 
+# Backup the default Nginx configuration
+sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup
+echo "Nginx configuration file backed up"
+ 
+# Modify Nginx configuration to set up reverse proxy
+sudo sed -i 's|try_files $uri $uri/ =404;|proxy_pass http://localhost:3000;|' /etc/nginx/sites-available/default
+echo "Nginx reverse proxy configuration updated"
+ 
+# Test the Nginx configuration
+sudo nginx -t
+ 
+# Restart Nginx
+sudo systemctl restart nginx
+echo "Nginx restarted with reverse proxy"
+ 
+echo "install nodejs v20..."
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - &&\
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs
+ 
+echo "check nodejs version..."
+node -v
+echo "nodejs v20 installed"
+ 
+ 
+# Check if the repo directory exists and remove it if necessary
+if [ -d "repo" ]; then
+  echo "Removing existing repo directory"
+  sudo rm -rf repo
+fi
+ 
+# Cloning Git repo
+echo "Clone Git folder"
+git clone https://github.com/corinnai/tech264-sparta-app.git repo
+echo "Cloned tech264-sparta-app"
+ 
+ 
+echo "Change directory to app"
+cd repo/app
+echo "In app directory"
+ 
+#Set MongoDB connecting string
+export DB_HOST=mongodb://10.0.3.5:27017
+ 
+ 
+# Install pm2 globally
+sudo npm install -g pm2
+ 
+# Stop all existing pm2 processes
+pm2 stop all
+ 
+echo "install and run"
 npm install
+echo npm "install done"
+ 
+ 
+echo "start"
+pm2 start app.js
+echo "App started with pm2"
 ```
-![database_succesfully](database_succesfully.png)
-
-20. **Start:**
+# -------------------- App script-----------------
 ```bash
-npm start
-```
-21. `Coppy the public IP address from the VM `and paste it into a browser and attach `:3000/posts `
+#!/bin/bash
 
-22. **If the page is not seeded:**
-```bash
-node seeds/seed.js
+# Check for updates
+echo "update sources list..."
+sudo apt update -y
+echo "update complete"
+
+# Upgrades those checks
+echo "upgrade any packages available..."
+sudo DEBIAN_FRONTEND=noninteractive apt upgrade -y
+echo "upgrade complete"
+
+# Install nginx
+sudo apt install -y nginx
+echo "nginx installed"
+
+
+# Modify Nginx configuration to set up reverse proxy
+sudo sed -i 's|try_files $uri $uri/ =404;|proxy_pass http://localhost:3000;|' /etc/nginx/sites-available/default
+echo "Nginx reverse proxy configuration updated"
+
+# Test the Nginx configuration
+sudo nginx -t
+
+# Restart Nginx
+sudo systemctl restart nginx
+echo "Nginx restarted with reverse proxy"
+
+echo "install nodejs v20..."
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - &&\
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs
+
+echo "check nodejs version..."
+node -v
+echo "nodejs v20 installed"
+
+
+# Install pm2 globally
+sudo npm install -g pm2
+
+
+# Cloning Git repo
+echo "Clone Git folder"
+git clone https://github.com/corinnai/tech264-sparta-app.git repo
+echo "Cloned tech264-sparta-app"
+
+
+echo "Change directory to app"
+cd repo/app
+echo "In app directory"
+
+#Set MongoDB connecting string
+export DB_HOST="mongodb://10.0.3.5:27017/posts"
+
+
+# Stop all existing pm2 processes
+pm2 stop all
+
+echo "install and run"
+npm install
+echo npm "install done"
+
+
+echo "start"
+pm2 start app.js
+echo "App started with pm2"
 ```
+ 
