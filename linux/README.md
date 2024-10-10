@@ -848,6 +848,16 @@ pm2 start app.js
 echo "App started with pm2"
 ```
 
+```bash
+sudo sed -i 's|try_files $uri $uri/ =404;|proxy_pass http://localhost:3000;|' /etc/nginx/sites-available/default
+
+sed:
+#Stream Editor (sed) is a Unix utility that allows you to search and replace text in files. In this case, it's used to modify the contents of the /etc/nginx/sites-available/default file.
+
+-i:
+#This option tells sed to edit the file in place, meaning the changes will be directly written to the file without creating a temporary copy.
+```
+
 ## Automating DB VM
 
 Running the below script configures a VM running on Linux Ubuntu 22.04 LTS Gen 2 to host a Database by:
@@ -926,6 +936,12 @@ echo Restarting MongoDB service...
 sudo systemctl start mongod
 echo Done!
 ```
+
+
+```bash
+cat /etc/mongod.conf | grep bindIp  # to check the bindIP
+```
+
 
 # Task: How many services can use a port?
 
@@ -1083,6 +1099,28 @@ DB script: [prov-db-script](prov-db-scrpit.sh)
 ```bash
 sudo waagent -deprovision+user
 ```
+#### Plan for creating an app + db image
+1. Create DB VM using custom image and user data to run entire db script 
+2. Test user data did it's job 
+3. Create app VM using custom image and user data to run entire app script 
+   - make sure the DB_HOST variable has the correct IP
+4. Test by:
+   - check public IP to bring up app homepage 
+   - check /posts page 
+5. Create DB VM image from DB VM 
+   - delete the db VM
+6. Create DB VM from the DB image just created
+7. Create app VM image from app VM
+   - delete the app VM
+8. Create app VM from the app image just created
+   - special/shorter (script - run-app-only.sh)
+   -  start with she-bang
+   - export DB_HOST
+   - cd into app folder
+   - (probably don't need it) npm install
+   - pm2 stop all
+   - pm start app.js
+      
 ### Capture the Image:
 * In the Azure Portal, navigate to the VM you just prepared.
 * Click on Capture > Image in the toolbar.
@@ -1112,6 +1150,16 @@ Create a New VM Using the Custom Image:
     - Start the app.js file via pm2
 
 Userdata app script : [userdata-app-scr](userdata-app-scrpit.sh)
+
+# What should we expect at the public IP after launching our app VM with user data?
+1. error
+2. nginx home page
+3. 502 error : bad gateway
+4. app displays
+```bash
+sudo cat /var/log/cloud-init-output.log # command to log the stages of app
+```
+
 
 
 # PWD (current directory):
