@@ -66,6 +66,16 @@
 - [What should we expect at the public IP after launching our app VM with user data?](#what-should-we-expect-at-the-public-ip-after-launching-our-app-vm-with-user-data)
 - [PWD (current directory):](#pwd-current-directory)
   - [pwd](#pwd)
+- [Scaling VM app](#scaling-vm-app)
+- [Scaling types](#scaling-types)
+- [Dashboard VM](#dashboard-vm)
+- [How to connect the VM app after you stop it and start again - using  SSH key](#how-to-connect-the-vm-app-after-you-stop-it-and-start-again---using--ssh-key)
+- [How to increase CPU](#how-to-increase-cpu)
+  - [Load testing with Apache Bench](#load-testing-with-apache-bench)
+- [Architecture for an Azure VM Scale set](#architecture-for-an-azure-vm-scale-set)
+  - [How to create a Scale Set](#how-to-create-a-scale-set)
+  - [Instances](#instances)
+  - [SSH into VM(from instances)](#ssh-into-vmfrom-instances)
 
 # Introduction to Linux
 
@@ -1264,3 +1274,138 @@ provision.sh located in your home directory
 
 
 
+
+
+# Scaling VM app
+![scaling VM app](images/Autoscaling.png)
+
+# Scaling types
+![scaling types](<images/Scaling types.png>)
+
+
+# Dashboard VM
+1. In the `VM` -> `Overview`-> scroll down to where is: 
+* Properties--Monitoring--Capabilities--Recommendations--Tutorials
+2. Select `Monitoring`
+3. In the monitoring window -> `Platform metrics` -> pin the metrics that we need(e.g. CPU, Disk bytes)
+4. `Click pin`-> `create new`-> type(private/pubic) -> `Dashboard name`-> `Pin`
+
+# How to connect the VM app after you stop it and start again - using  SSH key
+
+1. Connect the `VM with SSH key`
+2. To see the `repo/app`- need to be in root directory  -> `cd /repo/app`
+3. Stop all processes -> `pm2 stop all`
+4. To start the app -> `sudo pm2 start app.js`
+
+
+# How to increase CPU
+```bash
+sudo apt-get install apache2-utils
+```
+The `sudo apt-get install apache2-utils` command installs the `apache2-utils package`, which includes useful `tools for managing` and `testing Apache HTTP servers`.
+```bash
+ab
+```
+`AB(Apache Benchmark)` - a command-line tool used for `benchmarking` and `load-testing web `servers by sending a `specified number of requests` to a given URL and `measuring performance.`
+
+## Load testing with Apache Bench
+
+```bash
+ab -n 1000 -c 100 http://yourwebsite.com/
+
+# ab -n 1000 -c 100 http://public ip address/
+# to increase the requests : ab -n 1000 -c 200...
+```
+
+
+# Architecture for an Azure VM Scale set 
+
+![Azure VM Scale Set](<images/azure vm scale set.png>)
+
+
+## How to create a Scale Set
+
+1. Navigate to `Azure portal`-> search for `Scale Set ` 
+
+2. Navigate to `Virtual machine scale sets` -> click `Create`
+
+3. Creating the virtual machine scale set 
+  
+I. **Basic** : 
+- subscription : `Azure Training`
+- resource group : `tech264`
+- vm scale set name : `tech264-maria-sparta-app-scale-set`
+- region : `UK South`
+- availability zone : `Zone1` `Zone2` `Zone3`
+- orchestration : `uniform`
+- security type : `standard `
+- scaling mode: `Autoscaling `-> `configure` -> `Default condition` -> change: `initial instance count: 2 `, `min : 2`, `max : 3`, `Scale out : 75`, `Increase instance count by : 1 `(can change this if you want to increase by 1 or 5 etc), rest default -> `save`-> `save`
+- image: -> see all images -> `my image` -> `select app image`
+- username : `adminuser`
+- SSH : `use existing key stored in Azure`
+- Stored key : `my key`
+- licensing : `other`
+  
+II. **Disk** :
+  - os disk type : `Standard SSD`
+
+III. **Networking** :
+- Virtual Network : `tech264-maria-2-subnet-vnet`
+- Network Interface : -> edit -> `allow inbound ports` : `HTTP, SSH` -> `OK`
+```bash
+# if we need to SSH in we go to load balancer and take the IP address
+```
+  - Load balancing : `Azure load balancer` -> `Select a load balancer/ Create a load balancer` -> `Create` -> `Load balancer name : tech264-maria-sparta-app-lb` , rest default -> `Create`
+```bash
+# Inbound Nat rule 
+  # if we have more than one VM the frontend port range start for one is 50000----for 2 : 50001----for 3: 50003
+```
+
+IV. **Health** :
+- `enable application health monitoring `
+- `enable automatic repair `
+  
+V. **Advanced** :
+- enable user data -> paste the script
+```bash
+#!/bin/bash
+
+# Changing directories to point to the app.js file within the repo.
+echo changing directories to the app folder...
+cd repo/app
+echo Done!
+
+# Stop all processes managed by pm2
+echo Stopping all pm2 processes
+pm2 stop all
+echo Done!
+
+# Running the app in the background via pm2.
+echo running app...
+pm2 start app.js
+echo app running in the background...
+```
+
+VI. **Tags**:
+- `Owner : Maria`
+  
+VII. **Review + Create**
+
+VIII. `After Create` -> `resource `-> Copy and paste the public IP address into a new browser( check if is working)
+
+
+## Instances 
+* When deleting an instance the load balancer is gonna create another instance ( min 2 need to be)
+* `Change the image`(if we want to change the image used) : -> `Upgrade`
+
+
+## SSH into VM(from instances)
+
+* `click` on `one instance` -> `connect` -> `connect via SSH` -> provide the `private key path` -> command to paste on Bash : 
+  
+```bash
+ssh -i ~/.ssh/<private key> -p 50000 adminuser@<load balancer IP address>
+
+# Load balancer IP address-> settings -> frontend IP configuration
+# need to go a specific port : -p + the port for the first VM : 5000
+```
