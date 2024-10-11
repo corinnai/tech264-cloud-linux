@@ -1,4 +1,72 @@
 # Learning Linux
+- [Learning Linux](#learning-linux)
+- [Introduction to Linux](#introduction-to-linux)
+- [Linux commands](#linux-commands)
+- [How to Write a Bash Script.](#how-to-write-a-bash-script)
+- [Linux Environment Variables](#linux-environment-variables)
+  - [How to set, view variables](#how-to-set-view-variables)
+  - [How to set, view environment variables](#how-to-set-view-environment-variables)
+  - [How to make environment variables persistent (for the same user)](#how-to-make-environment-variables-persistent-for-the-same-user)
+    - [Step-by-Step to Make a Variable Persistent:](#step-by-step-to-make-a-variable-persistent)
+- [Processes](#processes)
+  - [Commands to list](#commands-to-list)
+  - [Running Processes](#running-processes)
+  - [Commands to kill](#commands-to-kill)
+  - [why you need to be careful with brute-force kill, what is best to try first and why](#why-you-need-to-be-careful-with-brute-force-kill-what-is-best-to-try-first-and-why)
+- [Managing file ownership](#managing-file-ownership)
+  - [Why is managing file ownership important?](#why-is-managing-file-ownership-important)
+  - [What is the command to view file ownership?](#what-is-the-command-to-view-file-ownership)
+  - [What permissions are set when a user creates a file or directory? Who does file or directory belong to?](#what-permissions-are-set-when-a-user-creates-a-file-or-directory-who-does-file-or-directory-belong-to)
+  - [Why does the owner, by default, not recieve X permissions when they create a file?](#why-does-the-owner-by-default-not-recieve-x-permissions-when-they-create-a-file)
+  - [What command is used to change the owner of a file or directory?](#what-command-is-used-to-change-the-owner-of-a-file-or-directory)
+- [Managing file permissions](#managing-file-permissions)
+  - [Does being the owner of a file mean you have full permissions on that file? Explain.](#does-being-the-owner-of-a-file-mean-you-have-full-permissions-on-that-file-explain)
+  - [If you give permissions to the User entity, what does this mean?](#if-you-give-permissions-to-the-user-entity-what-does-this-mean)
+  - [If you give permissions to the Group entity, what does this mean?](#if-you-give-permissions-to-the-group-entity-what-does-this-mean)
+  - [If you give permissions to the Other entity, what does this mean?](#if-you-give-permissions-to-the-other-entity-what-does-this-mean)
+  - [You give the following permissions to a file: User permissions are read-only, Group permissions are read and write, Other permissions are read, write and execute. You are logged in as the user which is owner of the file. What permissions will you have on this file? Explain.](#you-give-the-following-permissions-to-a-file-user-permissions-are-read-only-group-permissions-are-read-and-write-other-permissions-are-read-write-and-execute-you-are-logged-in-as-the-user-which-is-owner-of-the-file-what-permissions-will-you-have-on-this-file-explain)
+  - [Here is one line from the ls -l. Work everything you can about permissions on this file or directory.](#here-is-one-line-from-the-ls--l-work-everything-you-can-about-permissions-on-this-file-or-directory)
+- [Managing file permissions using numeric values](#managing-file-permissions-using-numeric-values)
+  - [What numeric values are assigned to each permission?](#what-numeric-values-are-assigned-to-each-permission)
+  - [What can you with the values assign read + write permissions?](#what-can-you-with-the-values-assign-read--write-permissions)
+  - [What value would assign read, write and execute permissions?](#what-value-would-assign-read-write-and-execute-permissions)
+  - [What value would assign read and execute permissions?](#what-value-would-assign-read-and-execute-permissions)
+  - [Often, a file or directory's mode/permissions are represented by 3 numbers. What do you think 644 would mean?](#often-a-file-or-directorys-modepermissions-are-represented-by-3-numbers-what-do-you-think-644-would-mean)
+- [Changing file permissions](#changing-file-permissions)
+  - [What command changes file permissions?](#what-command-changes-file-permissions)
+  - [To change permissions on a file what must the end user be? (2 answers)](#to-change-permissions-on-a-file-what-must-the-end-user-be-2-answers)
+  - [Give examples of some different ways/syntaxes to set permissions on a new file (named `testfile.txt`) to:](#give-examples-of-some-different-wayssyntaxes-to-set-permissions-on-a-new-file-named-testfiletxt-to)
+- [Setting the test app with the VM](#setting-the-test-app-with-the-vm)
+  - [How to add a port](#how-to-add-a-port)
+- [Using SCP (Secure Copy) and how it works](#using-scp-secure-copy-and-how-it-works)
+- [Setting the database on a VM](#setting-the-database-on-a-vm)
+  - [Creating a VM](#creating-a-vm)
+- [Install MongoDB on Azure](#install-mongodb-on-azure)
+- [Automating VMs to Run Apps and DBs (Updated with pm2, reverse proxy, run in Azure user data)](#automating-vms-to-run-apps-and-dbs-updated-with-pm2-reverse-proxy-run-in-azure-user-data)
+  - [Automating App VM](#automating-app-vm)
+  - [Automating DB VM](#automating-db-vm)
+- [Task: How many services can use a port?](#task-how-many-services-can-use-a-port)
+  - [Resolving Port Conflicts on Linux: Freeing Up Port 3000](#resolving-port-conflicts-on-linux-freeing-up-port-3000)
+- [Reverse Proxy](#reverse-proxy)
+  - [Manually Configuring Reverse Proxy](#manually-configuring-reverse-proxy)
+- [Reverse Proxy Automation.](#reverse-proxy-automation)
+- [Task: Run Sparta app in the background](#task-run-sparta-app-in-the-background)
+  - [Use pm2 to start and stop the app in your app script](#use-pm2-to-start-and-stop-the-app-in-your-app-script)
+    - [pm2: Commands](#pm2-commands)
+    - [Automating pm2 to run our app.](#automating-pm2-to-run-our-app)
+- [Task: Automate app Stage 3 - Automate app deployment with user data](#task-automate-app-stage-3---automate-app-deployment-with-user-data)
+      - [Plan for creating an app + db image](#plan-for-creating-an-app--db-image)
+- [Create an Image from a VM](#create-an-image-from-a-vm)
+  - [Create a Custom Generalized Image](#create-a-custom-generalized-image)
+    - [Prepare the VM for Generalization:](#prepare-the-vm-for-generalization)
+    - [Capture the Image:](#capture-the-image)
+    - [In the capture image window:](#in-the-capture-image-window)
+  - [Creating a New VM from the image](#creating-a-new-vm-from-the-image)
+  - [Summary of our Sparta App](#summary-of-our-sparta-app)
+- [What should we expect at the public IP after launching our app VM with user data?](#what-should-we-expect-at-the-public-ip-after-launching-our-app-vm-with-user-data)
+- [PWD (current directory):](#pwd-current-directory)
+  - [pwd](#pwd)
+
 # Introduction to Linux
 
 Linux is a `free` and `open-source operating system` that serves as the foundation for many systems and devices worldwide. It is based on the Linux `kernel`, which was created by Linus Torvalds in 1991. The Linux operating system is widely known for its `stability`, `security`, `flexibility`, and `open-source nature`, making it popular in many environments, from personal computers to servers, supercomputers, embedded systems, and even mobile devices like Android.
@@ -1077,6 +1145,29 @@ echo app running in the background...
 
 # Task: Automate app Stage 3 - Automate app deployment with user data
 
+#### Plan for creating an app + db image
+1. Create DB VM using custom image and user data to run entire db script 
+2. Test user data did it's job 
+3. Create app VM using custom image and user data to run entire app script 
+   - make sure the DB_HOST variable has the correct IP
+4. Test by:
+   - check public IP to bring up app homepage 
+   - check /posts page 
+5. Create DB VM image from DB VM 
+   - delete the db VM
+6. Create DB VM from the DB image just created
+7. Create app VM image from app VM
+   - delete the app VM
+8. Create app VM from the app image just created
+   - special/shorter (script - run-app-only.sh)
+   -  start with she-bang
+   - export DB_HOST
+   - cd into app folder
+   - (probably don't need it) npm install
+   - pm2 stop all
+   - pm start app.js
+
+
 Things to consider:
 
 * When running the script in user data it is run within the root directory.
@@ -1099,27 +1190,7 @@ DB script: [prov-db-script](prov-db-scrpit.sh)
 ```bash
 sudo waagent -deprovision+user
 ```
-#### Plan for creating an app + db image
-1. Create DB VM using custom image and user data to run entire db script 
-2. Test user data did it's job 
-3. Create app VM using custom image and user data to run entire app script 
-   - make sure the DB_HOST variable has the correct IP
-4. Test by:
-   - check public IP to bring up app homepage 
-   - check /posts page 
-5. Create DB VM image from DB VM 
-   - delete the db VM
-6. Create DB VM from the DB image just created
-7. Create app VM image from app VM
-   - delete the app VM
-8. Create app VM from the app image just created
-   - special/shorter (script - run-app-only.sh)
-   -  start with she-bang
-   - export DB_HOST
-   - cd into app folder
-   - (probably don't need it) npm install
-   - pm2 stop all
-   - pm start app.js
+
       
 ### Capture the Image:
 * In the Azure Portal, navigate to the VM you just prepared.
