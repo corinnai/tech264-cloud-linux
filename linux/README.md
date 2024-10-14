@@ -68,14 +68,22 @@
   - [pwd](#pwd)
 - [Scaling VM app](#scaling-vm-app)
 - [Scaling types](#scaling-types)
+- [What is worst to best in terms of monitoring and responding to load/traffic.](#what-is-worst-to-best-in-terms-of-monitoring-and-responding-to-loadtraffic)
 - [Dashboard VM](#dashboard-vm)
+- [How Load Testing and the Dashboard Helped](#how-load-testing-and-the-dashboard-helped)
 - [How to connect the VM app after you stop it and start again - using  SSH key](#how-to-connect-the-vm-app-after-you-stop-it-and-start-again---using--ssh-key)
 - [How to increase CPU](#how-to-increase-cpu)
   - [Load testing with Apache Bench](#load-testing-with-apache-bench)
 - [Architecture for an Azure VM Scale set](#architecture-for-an-azure-vm-scale-set)
+  - [What is a Load Balancer?](#what-is-a-load-balancer)
+    - [Why it is Needed:](#why-it-is-needed)
   - [How to create a Scale Set](#how-to-create-a-scale-set)
   - [Instances](#instances)
   - [SSH into VM(from instances)](#ssh-into-vmfrom-instances)
+- [CPU Usage Alert Setup](#cpu-usage-alert-setup)
+- [Get the alert to check the average for each minute](#get-the-alert-to-check-the-average-for-each-minute)
+- [Screenshot of Email Notification](#screenshot-of-email-notification)
+- [Clean-up Process](#clean-up-process)
 
 # Introduction to Linux
 
@@ -1283,12 +1291,31 @@ provision.sh located in your home directory
 ![scaling types](<images/Scaling types.png>)
 
 
+
+# What is worst to best in terms of monitoring and responding to load/traffic.
+
+1. `Reactive Monitoring (Worst)`: Manually checking logs or metrics after issues occur, responding only when problems arise.
+2. `Automated Monitoring with Delayed Response:` Using automated alerts but with a significant delay between detection and response.
+3. `Proactive Monitoring with Alerts (Better)`: Setting up alerts based on predefined thresholds (like CPU usage) and responding promptly.
+4. `Load Testing with Monitoring (Best):` Continuously testing load in a controlled environment, with real-time monitoring and automated scaling or alerting when issues arise.
+
+
 # Dashboard VM
 1. In the `VM` -> `Overview`-> scroll down to where is: 
 * Properties--Monitoring--Capabilities--Recommendations--Tutorials
-2. Select `Monitoring`
-3. In the monitoring window -> `Platform metrics` -> pin the metrics that we need(e.g. CPU, Disk bytes)
-4. `Click pin`-> `create new`-> type(private/pubic) -> `Dashboard name`-> `Pin`
+1. Select `Monitoring`
+2. In the monitoring window -> `Platform metrics` -> pin the metrics that we need(e.g. CPU, Disk bytes)
+3. `Click pin`-> `create new`-> type(private/pubic) -> `Dashboard name`-> `Pin`
+
+
+# How Load Testing and the Dashboard Helped
+By combining load testing with the dashboard, you could:
+
+* Observe how the app performs under stress.
+* Visualize spikes in CPU usage, memory consumption, and response time.
+* Identify bottlenecks and understand the app's behavior in real-world scenarios.
+* Make informed decisions on scaling or resource allocation.
+
 
 # How to connect the VM app after you stop it and start again - using  SSH key
 
@@ -1321,6 +1348,20 @@ ab -n 1000 -c 100 http://yourwebsite.com/
 # Architecture for an Azure VM Scale set 
 
 ![Azure VM Scale Set](<images/azure vm scale set.png>)
+
+
+## What is a Load Balancer?
+
+A load balancer is a device that evenly distributes network or application traffic across a number of servers. Its main role is to ensure that no single server becomes overloaded, ensuring high availability, fault tolerance, and scalability.
+
+### Why it is Needed:
+
+* **High Availability** : Distributes traffic so that if one instance fails, others can take over.
+* **Scalability** : Can dynamically distribute traffic to newly added instances.
+* **Performance** : Prevents any one server from becoming a bottleneck by distributing workloads.
+
+
+
 
 
 ## How to create a Scale Set
@@ -1409,3 +1450,32 @@ ssh -i ~/.ssh/<private key> -p 50000 adminuser@<load balancer IP address>
 # Load balancer IP address-> settings -> frontend IP configuration
 # need to go a specific port : -p + the port for the first VM : 5000
 ```
+
+
+
+# CPU Usage Alert Setup
+
+1. In `Azure Monitor`, go to `Alerts` and click on `New Alert Rule`.
+2. Set the `Scope` to your app's resource (e.g., virtual machine or app service).
+3. Under `Condition`, choose `CPU Percentage` as the signal.
+4. Set the threshold low enough (e.g., 70%) to trigger an alert under heavy load.
+5. Under `Actions`, create an `Action Group` that sends an email notification to your address.
+6. Name and save the alert rule.
+
+# Get the alert to check the average for each minute
+`How to Get the Alert to Check the Average for Each Minute:` When setting up the alert condition, configure the `Aggregation Type` to "Average" and the `Frequency of Evaluation` to 1 minute. This ensures the alert checks the average CPU usage per minute and sends notifications accordingly.
+
+# Screenshot of Email Notification
+
+
+
+
+
+
+
+
+# Clean-up Process
+1. Go to `Monitor` > `Alerts` and delete the CPU usage alert.
+2. In `Monitor` > `Action Groups`, delete the associated action group.
+3. Go to `Dashboards`, locate your custom dashboard, and delete it.
+4. Ensure all associated resources are removed to avoid unnecessary charges.
