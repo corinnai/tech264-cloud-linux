@@ -64,26 +64,45 @@
   - [Creating a New VM from the image](#creating-a-new-vm-from-the-image)
   - [Summary of our Sparta App](#summary-of-our-sparta-app)
 - [What should we expect at the public IP after launching our app VM with user data?](#what-should-we-expect-at-the-public-ip-after-launching-our-app-vm-with-user-data)
+- [How to stop the app running after running the app with the pm2 command in user data](#how-to-stop-the-app-running-after-running-the-app-with-the-pm2-command-in-user-data)
 - [PWD (current directory):](#pwd-current-directory)
   - [pwd](#pwd)
 - [Scaling VM app](#scaling-vm-app)
 - [Scaling types](#scaling-types)
+- [How to create a Scale Set](#how-to-create-a-scale-set)
+  - [Instances](#instances)
+  - [SSH into VM(from instances)](#ssh-into-vmfrom-instances)
+- [What is a Load Balancer?](#what-is-a-load-balancer)
+    - [Why it is Needed:](#why-it-is-needed)
+- [How to Manage VM Instances](#how-to-manage-vm-instances)
+- [How to connect the VM app after you stop it and start again - using  SSH key](#how-to-connect-the-vm-app-after-you-stop-it-and-start-again---using--ssh-key)
+- [How to ensure high availability and scalability when deploying an app](#how-to-ensure-high-availability-and-scalability-when-deploying-an-app)
+- [Steps to Create an Unhealthy Instance for Testing](#steps-to-create-an-unhealthy-instance-for-testing)
+- [How to test auto scaling can recover when a VM is marked as unhealthy](#how-to-test-auto-scaling-can-recover-when-a-vm-is-marked-as-unhealthy)
+  - [Steps to Delete a VM Scale Set and its Connecting Parts](#steps-to-delete-a-vm-scale-set-and-its-connecting-parts)
 - [What is worst to best in terms of monitoring and responding to load/traffic.](#what-is-worst-to-best-in-terms-of-monitoring-and-responding-to-loadtraffic)
 - [Dashboard VM](#dashboard-vm)
 - [How Load Testing and the Dashboard Helped](#how-load-testing-and-the-dashboard-helped)
-- [How to connect the VM app after you stop it and start again - using  SSH key](#how-to-connect-the-vm-app-after-you-stop-it-and-start-again---using--ssh-key)
 - [How to increase CPU](#how-to-increase-cpu)
   - [Load testing with Apache Bench](#load-testing-with-apache-bench)
 - [Architecture for an Azure VM Scale set](#architecture-for-an-azure-vm-scale-set)
-  - [What is a Load Balancer?](#what-is-a-load-balancer)
-    - [Why it is Needed:](#why-it-is-needed)
-  - [How to create a Scale Set](#how-to-create-a-scale-set)
-  - [Instances](#instances)
-  - [SSH into VM(from instances)](#ssh-into-vmfrom-instances)
 - [CPU Usage Alert Setup](#cpu-usage-alert-setup)
 - [Get the alert to check the average for each minute](#get-the-alert-to-check-the-average-for-each-minute)
 - [Screenshot of Email Notification](#screenshot-of-email-notification)
 - [Clean-up Process](#clean-up-process)
+- [Securing the database with a DMZ subnet](#securing-the-database-with-a-dmz-subnet)
+- [VM availability options on Azure](#vm-availability-options-on-azure)
+  - [What is an availability set? How do they work? Advantages/disadvantages?](#what-is-an-availability-set-how-do-they-work-advantagesdisadvantages)
+    - [How Availability Sets Work](#how-availability-sets-work)
+    - [Advantages:](#advantages)
+    - [Disadvantages:](#disadvantages)
+  - [What is an availability zone? Why superior to an availability set? Disadvantages?](#what-is-an-availability-zone-why-superior-to-an-availability-set-disadvantages)
+    - [Why Availability Zones are Superior to Availability Sets:](#why-availability-zones-are-superior-to-availability-sets)
+    - [Disadvantages:](#disadvantages-1)
+  - [What is a Virtual Machine Scale Set? What type of scaling does it do? How does it work? Limitations?](#what-is-a-virtual-machine-scale-set-what-type-of-scaling-does-it-do-how-does-it-work-limitations)
+    - [Types of Scaling:](#types-of-scaling)
+    - [How Virtual Machine Scale Sets Work:](#how-virtual-machine-scale-sets-work)
+    - [Limitations of Virtual Machine Scale Sets:](#limitations-of-virtual-machine-scale-sets)
 
 # Introduction to Linux
 
@@ -1249,6 +1268,17 @@ Userdata app script : [userdata-app-scr](userdata-app-scrpit.sh)
 sudo cat /var/log/cloud-init-output.log # command to log the stages of app
 ```
 
+# How to stop the app running after running the app with the pm2 command in user data
+ 
+ 
+ **Can't do** : `pm2 stop all / pm2 kill`
+
+ **Solution** : kill pm2 (the process manager)
+
+```bash
+# the issue - because the user data runs as root user you cant access pm2 commnad (when you ssh in a different user)
+# the root user started the pm2 -> when running pm2 stop -> not gonna see that process running -> therefore kill the pm2 process
+```
 
 
 # PWD (current directory):
@@ -1292,81 +1322,9 @@ provision.sh located in your home directory
 
 
 
-# What is worst to best in terms of monitoring and responding to load/traffic.
+# How to create a Scale Set
 
-1. `Reactive Monitoring (Worst)`: Manually checking logs or metrics after issues occur, responding only when problems arise.
-2. `Automated Monitoring with Delayed Response:` Using automated alerts but with a significant delay between detection and response.
-3. `Proactive Monitoring with Alerts (Better)`: Setting up alerts based on predefined thresholds (like CPU usage) and responding promptly.
-4. `Load Testing with Monitoring (Best):` Continuously testing load in a controlled environment, with real-time monitoring and automated scaling or alerting when issues arise.
-
-
-# Dashboard VM
-1. In the `VM` -> `Overview`-> scroll down to where is: 
-* Properties--Monitoring--Capabilities--Recommendations--Tutorials
-1. Select `Monitoring`
-2. In the monitoring window -> `Platform metrics` -> pin the metrics that we need(e.g. CPU, Disk bytes)
-3. `Click pin`-> `create new`-> type(private/pubic) -> `Dashboard name`-> `Pin`
-
-
-# How Load Testing and the Dashboard Helped
-By combining load testing with the dashboard, you could:
-
-* Observe how the app performs under stress.
-* Visualize spikes in CPU usage, memory consumption, and response time.
-* Identify bottlenecks and understand the app's behavior in real-world scenarios.
-* Make informed decisions on scaling or resource allocation.
-
-
-# How to connect the VM app after you stop it and start again - using  SSH key
-
-1. Connect the `VM with SSH key`
-2. To see the `repo/app`- need to be in root directory  -> `cd /repo/app`
-3. Stop all processes -> `pm2 stop all`
-4. To start the app -> `sudo pm2 start app.js`
-
-
-# How to increase CPU
-```bash
-sudo apt-get install apache2-utils
-```
-The `sudo apt-get install apache2-utils` command installs the `apache2-utils package`, which includes useful `tools for managing` and `testing Apache HTTP servers`.
-```bash
-ab
-```
-`AB(Apache Benchmark)` - a command-line tool used for `benchmarking` and `load-testing web `servers by sending a `specified number of requests` to a given URL and `measuring performance.`
-
-## Load testing with Apache Bench
-
-```bash
-ab -n 1000 -c 100 http://yourwebsite.com/
-
-# ab -n 1000 -c 100 http://public ip address/
-# to increase the requests : ab -n 1000 -c 200...
-```
-
-
-# Architecture for an Azure VM Scale set 
-
-![Azure VM Scale Set](<images/azure vm scale set.png>)
-
-
-## What is a Load Balancer?
-
-A load balancer is a device that evenly distributes network or application traffic across a number of servers. Its main role is to ensure that no single server becomes overloaded, ensuring high availability, fault tolerance, and scalability.
-
-### Why it is Needed:
-
-* **High Availability** : Distributes traffic so that if one instance fails, others can take over.
-* **Scalability** : Can dynamically distribute traffic to newly added instances.
-* **Performance** : Prevents any one server from becoming a bottleneck by distributing workloads.
-
-
-
-
-
-## How to create a Scale Set
-
-1. Navigate to `Azure portal`-> search for `Scale Set ` 
+1. Go to `Azure portal`-> search for `Scale Set ` 
 
 2. Navigate to `Virtual machine scale sets` -> click `Create`
 
@@ -1451,6 +1409,132 @@ ssh -i ~/.ssh/<private key> -p 50000 adminuser@<load balancer IP address>
 # need to go a specific port : -p + the port for the first VM : 5000
 ```
 
+# What is a Load Balancer?
+
+A load balancer is a device that evenly distributes network or application traffic across a number of servers. Its main role is to ensure that no single server becomes overloaded, ensuring high availability, fault tolerance, and scalability.
+
+### Why it is Needed:
+
+* **High Availability** : Distributes traffic so that if one instance fails, others can take over.
+* **Scalability** : Can dynamically distribute traffic to newly added instances.
+* **Performance** : Prevents any one server from becoming a bottleneck by distributing workloads.
+
+
+#  How to Manage VM Instances
+
+Managing VM instances refers to monitoring, scaling, and maintaining the health of the VMs in the backend pool.
+
+**Key Actions** :
+* **Scaling**: Add or remove instances manually or configure auto-scaling based on metrics (e.g., CPU usage).
+* **Monitoring**: Use tools like Azure Monitor to track performance, CPU usage, disk IO, etc.
+* **Replacing Unhealthy Instances**: When an instance is marked unhealthy (e.g., failing health probes), it can be automatically replaced in case of a VM Scale Set, or you can manually intervene.
+
+# How to connect the VM app after you stop it and start again - using  SSH key
+
+1. Connect the `VM with SSH key`
+2. To see the `repo/app`- need to be in root directory  -> `cd /repo/app`
+3. Stop all processes -> `pm2 stop all`
+4. To start the app -> `sudo pm2 start app.js`
+
+
+# How to ensure high availability and scalability when deploying an app
+
+**Availability** - ensure that in case of an event of failure such as server crashes, networking issues the app is still accessible.
+
+**Key Steps to Ensure High Availability** :
+  * Use `Load Balancers` - evenly distributes incoming traffic across multiple instances (servers). This ensures that no single instance becomes a single point of failure. If one instance fails, traffic is rerouted to the remaining healthy instances.
+  * Deploy `Instances Across Multiple Availability Zones (AZs)` - ensure that even if one data center fails, the app remains accessible through the instances in other zones.
+  * `Virtual Machine Scale Sets (VMSS) with Minimum Instances` - deploy your app using a virtual machine scale set (VMSS) with a minimum number of instances set to two or more.
+
+**Scalability** - Scalability ensures that your application can handle increasing loads by adding more resources as demand grows.
+
+**Key Steps to Ensure Scalability**:
+  * Use `Auto-Scaling for Application Instances`: implement auto-scaling policies that dynamically increase or decrease the number of application instances based on demand (e.g., CPU usage, memory utilization, or incoming requests).
+
+
+
+
+
+# Steps to Create an Unhealthy Instance for Testing
+# How to test auto scaling can recover when a VM is marked as unhealthy
+
+- The health of a VM is marked when the VM is running.
+- To make the **user data running** second time either **select all instances** and -> **Click**-> **Reimage**
+
+How to make unhealty:
+- stop and restart the instance -> the app is not gonna run in that case
+- ssh in and go to the repo and stop the process manually 
+
+
+
+## Steps to Delete a VM Scale Set and its Connecting Parts
+
+**Step 1: Delete the VM Scale Set**
+
+1. **Go to Azure Portal** > VM Scale Sets.
+2. **Select the Scale Set** you wish to delete.
+3. Click **Delete**, and confirm the deletion.
+
+**Step 2: Clean Up Related Resources**
+
+1. **Delete Load Balancer**: Go to the Load Balancer resource, click Delete.
+2. **Delete Public IP**: If not needed anymore, go to Public IP addresses and delete the associated IP.
+3. **Delete Network Interfaces and Disks**: In the same resource group, locate and delete any associated network interfaces, disks, or other resources created alongside the VM scale set.
+
+
+
+
+# What is worst to best in terms of monitoring and responding to load/traffic.
+
+1. `Reactive Monitoring (Worst)`: Manually checking logs or metrics after issues occur, responding only when problems arise.
+2. `Automated Monitoring with Delayed Response:` Using automated alerts but with a significant delay between detection and response.
+3. `Proactive Monitoring with Alerts (Better)`: Setting up alerts based on predefined thresholds (like CPU usage) and responding promptly.
+4. `Load Testing with Monitoring (Best):` Continuously testing load in a controlled environment, with real-time monitoring and automated scaling or alerting when issues arise.
+
+
+# Dashboard VM
+1. In the `VM` -> `Overview`-> scroll down to where is: 
+* Properties--**Monitoring**--Capabilities--Recommendations--Tutorials
+1. Select `Monitoring`
+2. In the monitoring window -> `Platform metrics` -> pin the metrics that we need(e.g. CPU, Disk bytes)
+3. `Click pin`-> `create new`-> type(private/pubic) -> `Dashboard name`-> `Pin`
+
+
+# How Load Testing and the Dashboard Helped
+By combining load testing with the dashboard, you could:
+
+* Observe how the app performs under stress.
+* Visualize spikes in CPU usage, memory consumption, and response time.
+* Identify bottlenecks and understand the app's behavior in real-world scenarios.
+* Make informed decisions on scaling or resource allocation.
+
+
+
+
+
+# How to increase CPU
+```bash
+sudo apt-get install apache2-utils
+```
+The `sudo apt-get install apache2-utils` command installs the `apache2-utils package`, which includes useful `tools for managing` and `testing Apache HTTP servers`.
+```bash
+ab
+```
+`AB(Apache Benchmark)` - a command-line tool used for `benchmarking` and `load-testing web `servers by sending a `specified number of requests` to a given URL and `measuring performance.`
+
+## Load testing with Apache Bench
+
+```bash
+ab -n 1000 -c 100 http://yourwebsite.com/
+
+# ab -n 1000 -c 100 http://public ip address/
+# to increase the requests : ab -n 1000 -c 200...
+```
+
+
+# Architecture for an Azure VM Scale set 
+
+![Azure VM Scale Set](<images/azure vm scale set.png>)
 
 
 # CPU Usage Alert Setup
@@ -1466,12 +1550,7 @@ ssh -i ~/.ssh/<private key> -p 50000 adminuser@<load balancer IP address>
 `How to Get the Alert to Check the Average for Each Minute:` When setting up the alert condition, configure the `Aggregation Type` to "Average" and the `Frequency of Evaluation` to 1 minute. This ensures the alert checks the average CPU usage per minute and sends notifications accordingly.
 
 # Screenshot of Email Notification
-
-
-
-
-
-
+![alert-cpu](images/alert-cpu.png)
 
 
 # Clean-up Process
@@ -1479,3 +1558,183 @@ ssh -i ~/.ssh/<private key> -p 50000 adminuser@<load balancer IP address>
 2. In `Monitor` > `Action Groups`, delete the associated action group.
 3. Go to `Dashboards`, locate your custom dashboard, and delete it.
 4. Ensure all associated resources are removed to avoid unnecessary charges.
+
+
+
+
+# Securing the database with a DMZ subnet
+
+![securing db with dmz subnet](<images/securing db with dmz.png>)
+
+
+
+**By default**, when set up a NSG, it allows internal traffic on a VM -> 2 tier architecure are on the same VM so they can talk with each other freely without having to allow them any rules.
+
+To set a **higher priority rule** -> set the virtual networking **traffic to not be allowed by default** -> but we need to allow **mongo(27017)** + **deny everything else** (**AWS, by default virtual network traffic not allowed on AWS)**.
+
+To **improve security** : **delete the public IP address of DB** -> people cant SSH into the DB -> but if you **want to SSH into the DB** can use other **VM as a jump box** which are **public** already using the private key of DB VM on APP VM.
+
+**DMZ subnet (demilitarized zone)** - 10.0.3.0/24
+
+**NVA**(**network virtual appliance**) - is going to **filter** any **traffic** is being sent to **database**.(only correct, valid, safe traffic from the right source allowed to go to db)
+  - to force the traffic to go first through NVA we need a **route table**
+  - **route table job** -> route **certain traffic** to **certain places**
+  - the **route table** need to be **assosiated** with the **subnet** where the **traffic** is **comming out of** 
+  -  **safe traffic** is **coming out** of APP VM (out of the public subnet) -> **next hop** -> **NVA VM**
+  -  then **NVA** -> **filter the traffic** and then gonna **forward traffic to** -> **private subnet**
+  -  **NVA NIC** -> needs **IP forwarding enabled** 
+  -  **NVA** ( actual vm) -> need **IP forwarding enabled** + **IP tables rules**(usually used for setting up firewall rules)
+
+
+
+**Steps**:
+
+1. **Creating VNet with 3 subnets** :
+  
+         Click Create -> Basic(appropriate name) -> Security (dont modify) -> IP addresses (leave the default address space) -> edit the subnets :
+          1. public-subnet (10.0.2.0/24)
+          2. dmz-subnet (10.0.3.0/24)
+          3. private-subnet (10.0.4.0/24) -> !!! enable private subnet(no default outbound access)
+
+        -> Tags -> Review + create
+
+
+2. **Create the database VM** :
+
+        Using the ready-to-run-db-image -> create VM -> Spread out across availability zones(to not put them only on one zone in case of crash, Zone3 for our DB VM) -> Networking : 3-subnet-vnet -> private-subnet , Public IP : none -> Review + Create
+
+
+3. **Create the APP VM** :
+   
+        Create after image ready-to-run-app-image -> Zone 1 -> Allow HTTP + SSH -> Networking : 3-subnet-vnet : public-subnet -> Advanced : user data
+
+        #!/bin/bash
+
+        # Changing directories to point to the app.js file within the repo.
+        echo changing directories to the app folder...
+        cd repo/app
+        echo Done!
+
+        # Setting an environment variable (DB_HOST) that is looked up when the app runs.
+        echo defining env variable
+        export "DB_HOST=mongodb://10.0.4.4:27017/posts"
+        echo Done!
+
+        # Running the app in the background via pm2.
+        echo running app...
+        pm2 start app.js
+        echo app running in the background...
+
+        -> Review + Create
+
+
+4. **Create the NVA VM**
+   
+        Create VM after custom image -> Zone 2 -> Networking : 3-subnet dmz-subnet -> Tag -> Create
+
+
+5. **Set up the ping to check the communication between the APP and Database VM**
+     *  Go ro app vm -> connect -> SSH into it -> git bash : 
+```bash
+  ping 10.0.4.4
+``` 
+To connect the posts page
+
+  * Git Bash -> `SSH APP VM` -> `cd repo/app` -> `export "DB_HOST=mongodb://10.0.3.5:27017/posts"` -> `sudo -E pm2 start app.js`
+
+```bash 
+sudo -E pm2 start app.js
+```
+
+
+6. **Set up the routing with the route table**
+
+- **Azure** -> search **Route Tables** -> create :
+   - Region : UK South
+   - Name : tech264-to-private-subnet-rt
+   - Tags
+   - Review + Create
+- **Go resource** -> **Settings** -> **Routes** -> **ADD** 
+  - **Route name** : to-private-subnet
+  - **Destination type** : IP Addresses
+  - **Destination IP adresses / CIDR ranges** : 10.0.4.0/24 (database-> final destination)
+  - **Next hop type** : NVA
+  - **Next top address** :  10.0.3.4 (private IP address from NVA)
+
+- **Subnets** :
+  - **Associate**
+  - **Associate subnet** -> VNet : tech264-3-subnet-vnet -> public-subnet
+
+
+7. **IP forwarding**
+
+
+
+
+
+
+
+
+# VM availability options on Azure
+
+## What is an availability set? How do they work? Advantages/disadvantages?
+An Availability Set is a logical grouping of virtual machines that helps ensure that your VMs remain available during hardware failures, updates, or maintenance events.
+
+### How Availability Sets Work
+**Fault Domains (FD)** - These are groups of VMs that share a common power source and network switch.
+
+**Update Domains (UD)** - These are used during maintenance events. Azure performs rolling updates across update domains so that only one update domain is rebooted at a time.
+
+### Advantages:
+**Fault Tolerance:** By distributing VMs across multiple fault domains, the application is protected from physical failures such as power outages.
+
+**Planned Maintenance Protection:** Update domains ensure VMs are not updated simultaneously during planned maintenance, minimizing downtime.
+
+### Disadvantages:
+**Single Data Center**:Availability Sets are limited to a single Azure region (data center). This means that they cannot protect against large-scale failures like regional outages or disasters.
+
+**No Automatic Scaling** : Availability Sets don’t provide built-in auto-scaling capabilities. You need to manage scaling manually or in combination with Virtual Machine Scale Sets (VMSS).
+
+
+
+## What is an availability zone? Why superior to an availability set? Disadvantages?
+An Availability Zone is a physically separate location within an Azure region. Each zone has its own independent power, cooling, and networking infrastructure. VMs deployed across Availability Zones are isolated from each other at the data center level, providing protection against entire data center outages.
+
+
+
+### Why Availability Zones are Superior to Availability Sets:
+**Geographic Redundancy**: Unlike Availability Sets, which operate within a single data center, Availability Zones are spread across different data centers within a region. This makes them more resilient to data center-level failures.
+
+**Higher Availability SLA**: Azure offers a higher Service Level Agreement (SLA) for workloads deployed across Availability Zones (99.99% uptime) compared to Availability Sets (99.95%).
+
+
+
+### Disadvantages:
+**Increased Latency**: Since Availability Zones are physically separated, there may be slightly higher network latency between VMs in different zones compared to VMs in the same data center.
+
+**Not Available in All Regions**: Availability Zones are not supported in all Azure regions, which limits their use in certain geographic areas.
+
+
+
+
+## What is a Virtual Machine Scale Set? What type of scaling does it do? How does it work? Limitations?
+A Virtual Machine Scale Set is an Azure service that allows you to deploy and manage a group of identical, load-balanced VMs. It automatically adjusts the number of VMs based on demand, making it ideal for applications that need to scale dynamically.
+
+### Types of Scaling:
+**Horizontal Scaling (Scale Out/Scale In)**: VMSS allows for horizontal scaling, which means adding or removing VM instances based on load or performance metrics. This is done automatically based on predefined rules, such as CPU usage, memory, or network traffic thresholds.
+
+### How Virtual Machine Scale Sets Work:
+**Auto-Scaling**: VMSS integrates with load balancers and automatically adds or removes VM instances based on real-time demand. For example, when CPU utilization exceeds a certain threshold, VMSS will automatically add more VMs. When the load decreases, it reduces the number of VMs.
+
+**Load Balancing**: VMSS uses a load balancer to distribute incoming traffic evenly across all VMs in the scale set.
+
+**Integration with Availability Zones**: VMSS can distribute VMs across multiple Availability Zones or Availability Sets, ensuring higher availability.
+
+### Limitations of Virtual Machine Scale Sets:
+**Limited to a Single Region**: Like Availability Sets, VMSS operates within a single Azure region, meaning it cannot handle cross-region failovers or disaster recovery on its own.
+
+**Complex State Management**: VMSS is more suited for stateless applications, where each instance can function independently. For stateful applications, maintaining consistency across all VM instances can be more complex.
+
+**Manual Image Updates**: If your application relies on custom VM images, you will need to manually update the image to apply updates across the scale set.
+
+![availability](<images/availability Azure.png>)
