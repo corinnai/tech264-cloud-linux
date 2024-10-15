@@ -91,6 +91,7 @@
 - [Screenshot of Email Notification](#screenshot-of-email-notification)
 - [Clean-up Process](#clean-up-process)
 - [Securing the database with a DMZ subnet](#securing-the-database-with-a-dmz-subnet)
+  - [Create a rule to deny everything else](#create-a-rule-to-deny-everything-else)
 - [VM availability options on Azure](#vm-availability-options-on-azure)
   - [What is an availability set? How do they work? Advantages/disadvantages?](#what-is-an-availability-set-how-do-they-work-advantagesdisadvantages)
     - [How Availability Sets Work](#how-availability-sets-work)
@@ -1176,7 +1177,7 @@ Run our app in the background managed by pm2.
 ```bash
 # Running the app in the background via pm2.
 echo running app...
-pm2 start app.js
+pm2 start app.js &
 echo app running in the background...
 ```
 
@@ -1634,13 +1635,13 @@ To **improve security** : **delete the public IP address of DB** -> people cant 
 
 
 5. **Set up the ping to check the communication between the APP and Database VM**
-     *  Go ro app vm -> connect -> SSH into it -> git bash : 
+     *  Go to app vm -> connect -> SSH into it -> git bash : 
 ```bash
   ping 10.0.4.4
 ``` 
 To connect the posts page
 
-  * Git Bash -> `SSH APP VM` -> `cd repo/app` -> `export "DB_HOST=mongodb://10.0.3.5:27017/posts"` -> `sudo -E pm2 start app.js`
+  * Git Bash -> `SSH APP VM` -> `cd repo/app` -> `export "DB_HOST=mongodb://10.0.4.4:27017/posts"` -> `sudo -E pm2 start app.js`
 
 ```bash 
 sudo -E pm2 start app.js
@@ -1667,33 +1668,127 @@ sudo -E pm2 start app.js
 
 
 7. **IP forwarding**
+We need to associate the route table to where the traffic comes out of.
+
+**In route table**
+1. In route table subnet -> **Settings** -> **Subnets**
+2. Click **Associate**
+3. Choose your virtual network(in this case tech264-maria-3-subnet-vnet)
+4. Select the **public-subnet**
+
+**In NIC for NVA**
+- We need to enable IP forwarding.
+1. In **NVA** -> **Networking settings** -> **Network Interface/ IP configuration link**
+
+![NVA NIC](<images/NVA NIC.png>)
+
+2. Enable **IP forwarding** and click **Apply**
+
+![enable-ip-forwarding](<images/NIC NVA enable.png>)
+
+
+**In NVA(linux):**
+1. SSH in NVA
+2. 
+```bash
+sysctl net.ipv4.ip_forward
+```
+1. 
+```bash
+sudo nano /etc/sysctl.conf
+# need to uncomment the net.ipv4.ip_forward=1
+```
+<br>
+
+![IP-forwarding](images/IP-forwarding.png)
+
+4. 
+```bash
+sudo sysctl -p
+#(reload the configuration)
+```
+If your `ping (DB Private IP)` command was running on another window, you'll see that it has resumed, meaning the packets are now being forwarded to the DB VM through the NVA. This also shows that the route table is working correctly.
+
+![ping-statistics](<images/ping 10.0.4.4.png>)
+
+
+**IP tables rule(works as a firewall)**
+- We need a script that will contain the rules we're going to set. SSH into your NVA.
+1. 
+```bash
+nano config-ip-tables.sh
+# create the script
+```
+[config-ip-tables](config-ip-tables.sh)
+
+2. 
+```bash
+chmod +x config-ip-tables.sh
+# give permission 
+```
+3. 
+```bash
+ls
+# show the script
+```
+4. 
+```bash
+sudo apt update -y
+# update
+```
+5. 
+```bash
+sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
+# upgrade
+```
+6. 
+```bash
+./config-ip-tables.sh
+# run the script
+```
 
 
 
+**Setting the rules in MongoDB VM**
+1. Navigate to your **DB virtual machine**.
+2. Go to **Network Settings** under **Networking**.
+3. Click the `tech264-maria-in-3-subnet-vnet-vm-nsg` link next to **Network security group** .
+4. Go to **inbound port rules** and click **Add**.
+5. Under **Source**, select **IP addresses**.
+6. Under **Source IP addresses/CIDR ranges**, input the **public subnet IP** `10.0.2.0/24`.
+7. Change the service to MongoDB.
+8. Change the name appropriately.
+
+![mongoDB-rule](images/mongodb-rule.png)
+
+## Create a rule to deny everything else
+1. **Add** another rule.
+2. Input a `*` to the **destination port ranges**.
+3. Change the priority to `500`.
+
+![deny-everything-rule](images/deny-everything-rule.png)
 
 
-
-
-
+ ---
 # VM availability options on Azure
 
 ## What is an availability set? How do they work? Advantages/disadvantages?
 An Availability Set is a logical grouping of virtual machines that helps ensure that your VMs remain available during hardware failures, updates, or maintenance events.
 
 ### How Availability Sets Work
-**Fault Domains (FD)** - These are groups of VMs that share a common power source and network switch.
+- **Fault Domains (FD)** - These are groups of VMs that share a common power source and network switch.
 
-**Update Domains (UD)** - These are used during maintenance events. Azure performs rolling updates across update domains so that only one update domain is rebooted at a time.
+- **Update Domains (UD)** - These are used during maintenance events. Azure performs rolling updates across update domains so that only one update domain is rebooted at a time.
 
 ### Advantages:
-**Fault Tolerance:** By distributing VMs across multiple fault domains, the application is protected from physical failures such as power outages.
+- **Fault Tolerance:** By distributing VMs across multiple fault domains, the application is protected from physical failures such as power outages.
 
-**Planned Maintenance Protection:** Update domains ensure VMs are not updated simultaneously during planned maintenance, minimizing downtime.
+- **Planned Maintenance Protection:** Update domains ensure VMs are not updated simultaneously during planned maintenance, minimizing downtime.
 
 ### Disadvantages:
-**Single Data Center**:Availability Sets are limited to a single Azure region (data center). This means that they cannot protect against large-scale failures like regional outages or disasters.
+- **Single Data Center**:Availability Sets are limited to a single Azure region (data center). This means that they cannot protect against large-scale failures like regional outages or disasters.
 
-**No Automatic Scaling** : Availability Sets don’t provide built-in auto-scaling capabilities. You need to manage scaling manually or in combination with Virtual Machine Scale Sets (VMSS).
+- **No Automatic Scaling** : Availability Sets don’t provide built-in auto-scaling capabilities. You need to manage scaling manually or in combination with Virtual Machine Scale Sets (VMSS).
 
 
 
@@ -1703,16 +1798,16 @@ An Availability Zone is a physically separate location within an Azure region. E
 
 
 ### Why Availability Zones are Superior to Availability Sets:
-**Geographic Redundancy**: Unlike Availability Sets, which operate within a single data center, Availability Zones are spread across different data centers within a region. This makes them more resilient to data center-level failures.
+- **Geographic Redundancy**: Unlike Availability Sets, which operate within a single data center, Availability Zones are spread across different data centers within a region. This makes them more resilient to data center-level failures.
 
-**Higher Availability SLA**: Azure offers a higher Service Level Agreement (SLA) for workloads deployed across Availability Zones (99.99% uptime) compared to Availability Sets (99.95%).
+- **Higher Availability SLA**: Azure offers a higher Service Level Agreement (SLA) for workloads deployed across Availability Zones (99.99% uptime) compared to Availability Sets (99.95%).
 
 
 
 ### Disadvantages:
-**Increased Latency**: Since Availability Zones are physically separated, there may be slightly higher network latency between VMs in different zones compared to VMs in the same data center.
+- **Increased Latency**: Since Availability Zones are physically separated, there may be slightly higher network latency between VMs in different zones compared to VMs in the same data center.
 
-**Not Available in All Regions**: Availability Zones are not supported in all Azure regions, which limits their use in certain geographic areas.
+- **Not Available in All Regions**: Availability Zones are not supported in all Azure regions, which limits their use in certain geographic areas.
 
 
 
@@ -1724,17 +1819,17 @@ A Virtual Machine Scale Set is an Azure service that allows you to deploy and ma
 **Horizontal Scaling (Scale Out/Scale In)**: VMSS allows for horizontal scaling, which means adding or removing VM instances based on load or performance metrics. This is done automatically based on predefined rules, such as CPU usage, memory, or network traffic thresholds.
 
 ### How Virtual Machine Scale Sets Work:
-**Auto-Scaling**: VMSS integrates with load balancers and automatically adds or removes VM instances based on real-time demand. For example, when CPU utilization exceeds a certain threshold, VMSS will automatically add more VMs. When the load decreases, it reduces the number of VMs.
+- **Auto-Scaling**: VMSS integrates with load balancers and automatically adds or removes VM instances based on real-time demand. For example, when CPU utilization exceeds a certain threshold, VMSS will automatically add more VMs. When the load decreases, it reduces the number of VMs.
 
-**Load Balancing**: VMSS uses a load balancer to distribute incoming traffic evenly across all VMs in the scale set.
+- **Load Balancing**: VMSS uses a load balancer to distribute incoming traffic evenly across all VMs in the scale set.
 
-**Integration with Availability Zones**: VMSS can distribute VMs across multiple Availability Zones or Availability Sets, ensuring higher availability.
+- **Integration with Availability Zones**: VMSS can distribute VMs across multiple Availability Zones or Availability Sets, ensuring higher availability.
 
 ### Limitations of Virtual Machine Scale Sets:
-**Limited to a Single Region**: Like Availability Sets, VMSS operates within a single Azure region, meaning it cannot handle cross-region failovers or disaster recovery on its own.
+- **Limited to a Single Region**: Like Availability Sets, VMSS operates within a single Azure region, meaning it cannot handle cross-region failovers or disaster recovery on its own.
 
-**Complex State Management**: VMSS is more suited for stateless applications, where each instance can function independently. For stateful applications, maintaining consistency across all VM instances can be more complex.
+- **Complex State Management**: VMSS is more suited for stateless applications, where each instance can function independently. For stateful applications, maintaining consistency across all VM instances can be more complex.
 
-**Manual Image Updates**: If your application relies on custom VM images, you will need to manually update the image to apply updates across the scale set.
+- **Manual Image Updates**: If your application relies on custom VM images, you will need to manually update the image to apply updates across the scale set.
 
 ![availability](<images/availability Azure.png>)
