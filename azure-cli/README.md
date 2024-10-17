@@ -175,7 +175,20 @@ az storage blob upload \
 1. Back on your VM's CLI...
     - Modify the file index.ejs (found in views folder inside the app folder) - add an <img> tag to the HTML so display the uploadedcat.jpg image on the Sparta front page.
     - Run the app (no database) to check your blob image displays on the Sparta test app's front page.
-
+```bash
+cd /repo/app
+```
+```bash
+cd views
+```
+```bash
+ls
+```
+```bash
+sudo nano index.ejs 
+```
+CTRL+S
+CTRL+X
 
 
 
