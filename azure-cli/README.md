@@ -187,6 +187,9 @@ ls
 ```bash
 sudo nano index.ejs 
 ```
+```bash
+<img src=https://tech264mariastorage.blob.core.windows.net/images/uploadedcat.jpg " />
+```
 CTRL+S
 CTRL+X
 
